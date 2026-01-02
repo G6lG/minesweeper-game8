@@ -13,6 +13,11 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html, body {
+            height: 100%;
+            overflow-y: auto;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0a192f 0%, #1a365d 50%, #0f3460 100%);
@@ -20,10 +25,10 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             padding: 20px;
-            overflow: hidden;
             position: relative;
+            overflow-x: hidden;
         }
 
         /* СНЕЖИНКИ */
@@ -44,21 +49,27 @@
             border-radius: 50%;
             opacity: 0.8;
             filter: blur(0.5px);
+            animation-duration: 10s, 3s;
+            animation-iteration-count: infinite, infinite;
+            animation-timing-function: linear, ease-in-out;
         }
 
         .snowflake.small {
             width: 3px;
             height: 3px;
+            animation-duration: 15s, 4s;
         }
 
         .snowflake.medium {
             width: 5px;
             height: 5px;
+            animation-duration: 12s, 3.5s;
         }
 
         .snowflake.large {
             width: 7px;
             height: 7px;
+            animation-duration: 8s, 3s;
         }
 
         /* АНИМАЦИИ СНЕЖИНОК */
@@ -84,7 +95,7 @@
                 transform: translateX(0);
             }
             50% {
-                transform: translateX(20px);
+                transform: translateX(var(--sway-distance, 20px));
             }
         }
         
@@ -102,6 +113,7 @@
             gap: 25px;
             position: relative;
             z-index: 2;
+            margin: 20px 0;
         }
 
         /* ШАПКА */
@@ -296,6 +308,10 @@
             text-shadow: 0 0 20px rgba(76, 201, 240, 0.7);
             letter-spacing: 5px;
             transition: all 0.3s ease;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .timer-display.changing {
@@ -952,6 +968,7 @@
             
             .timer-display {
                 font-size: 3.5rem;
+                min-height: 70px;
             }
             
             .instructions-grid {
@@ -960,6 +977,10 @@
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
             .header h1 {
                 font-size: 2rem;
             }
@@ -987,6 +1008,7 @@
             .timer-display {
                 font-size: 2.8rem;
                 letter-spacing: 3px;
+                min-height: 60px;
             }
         }
     </style>
@@ -1089,9 +1111,25 @@
                                 <label class="setting-label">🔊 Звуковые эффекты</label>
                             </div>
                             
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="music-toggle" checked>
+                                <label class="setting-label">🎵 Фоновая музыка</label>
+                            </div>
+                            
                             <!-- ФОНОВАЯ МУЗЫКА -->
                             <div class="audio-panel">
-                                <div class="settings-title">🎵 ФОНОВАЯ МУЗЫКА</div>
+                                <div class="settings-title">🎵 УПРАВЛЕНИЕ ЗВУКОМ</div>
+                                
+                                <div class="setting-group">
+                                    <label class="setting-label">Громкость музыки: <span class="range-value" id="music-volume-value">50</span>%</label>
+                                    <input type="range" id="music-volume" min="0" max="100" value="50">
+                                </div>
+                                
+                                <div class="setting-group">
+                                    <label class="setting-label">Громкость звуков: <span class="range-value" id="sfx-volume-value">70</span>%</label>
+                                    <input type="range" id="sfx-volume" min="0" max="100" value="70">
+                                </div>
+                                
                                 <div class="audio-controls">
                                     <button class="audio-btn" id="play-music">▶ Включить</button>
                                     <button class="audio-btn" id="pause-music">⏸ Пауза</button>
@@ -1102,18 +1140,6 @@
                                         📁 Загрузить MP3
                                     </label>
                                     <input type="file" id="music-upload" class="audio-upload" accept="audio/mp3,audio/*">
-                                </div>
-                                
-                                <!-- Регулятор громкости музыки -->
-                                <div class="setting-group">
-                                    <label class="setting-label">Громкость музыки:</label>
-                                    <input type="range" id="music-volume" min="0" max="100" value="50">
-                                </div>
-                                
-                                <!-- Регулятор громкости звуков -->
-                                <div class="setting-group">
-                                    <label class="setting-label">Громкость звуков игры:</label>
-                                    <input type="range" id="sfx-volume" min="0" max="100" value="70">
                                 </div>
                                 
                                 <span class="audio-status" id="music-status">🎶 Музыка: Технологичный саундтрек</span>
@@ -1165,7 +1191,7 @@
                                 </div>
                                 <div class="instruction-item">
                                     <div class="instruction-key">M</div>
-                                    <div>Вкл/выкл звук</div>
+                                    <div>Вкл/выкл музыку</div>
                                 </div>
                             </div>
                         </div>
@@ -1180,7 +1206,7 @@
     </div>
 
     <script>
-        // УЛУЧШЕННАЯ ВЕРСИЯ С СНЕЖИНКАМИ И ПРИЯТНЫМИ ЗВУКАМИ
+        // УЛУЧШЕННАЯ ВЕРСИЯ С ИСПРАВЛЕННЫМИ БАГАМИ
         
         const Game = {
             // Конфигурация
@@ -1193,7 +1219,9 @@
                 smartGeneration: true,
                 soundEnabled: true,
                 musicEnabled: true,
-                snowflakesCount: 80
+                snowflakesCount: 80,
+                musicVolume: 0.5,
+                sfxVolume: 0.7
             },
             
             // Состояние игры
@@ -1213,9 +1241,11 @@
                 audioContext: null,
                 sounds: {},
                 backgroundMusic: null,
-                musicVolume: 0.5,
-                sfxVolume: 0.7,
-                snowflakes: []
+                isMusicPlaying: false,
+                musicSource: null,
+                snowflakes: [],
+                musicAnalyser: null,
+                musicDataArray: null
             },
             
             // DOM элементы
@@ -1238,6 +1268,8 @@
             // Создание снежинок
             initSnowflakes() {
                 const container = document.getElementById('snowflakes');
+                container.innerHTML = '';
+                
                 for (let i = 0; i < this.config.snowflakesCount; i++) {
                     this.createSnowflake(container);
                 }
@@ -1253,6 +1285,10 @@
                 // Начальная позиция
                 snowflake.style.left = `${Math.random() * 100}%`;
                 snowflake.style.opacity = `${Math.random() * 0.6 + 0.3}`;
+                
+                // Случайное смещение для анимации качания
+                const swayDistance = Math.random() * 40 + 10;
+                snowflake.style.setProperty('--sway-distance', `${swayDistance}px`);
                 
                 // Анимация падения
                 const duration = Math.random() * 10 + 10;
@@ -1271,12 +1307,6 @@
                 setTimeout(() => {
                     this.resetSnowflake(snowflake);
                 }, (duration + delay) * 1000);
-                
-                this.state.snowflakes.push({
-                    element: snowflake,
-                    duration: duration,
-                    delay: delay
-                });
             },
             
             resetSnowflake(snowflake) {
@@ -1318,7 +1348,11 @@
                     musicUpload: document.getElementById('music-upload'),
                     musicVolume: document.getElementById('music-volume'),
                     sfxVolume: document.getElementById('sfx-volume'),
-                    musicStatus: document.getElementById('music-status')
+                    musicVolumeValue: document.getElementById('music-volume-value'),
+                    sfxVolumeValue: document.getElementById('sfx-volume-value'),
+                    musicStatus: document.getElementById('music-status'),
+                    soundToggle: document.getElementById('sound-toggle'),
+                    musicToggle: document.getElementById('music-toggle')
                 };
             },
             
@@ -1330,13 +1364,8 @@
                     // Создаем улучшенные звуковые эффекты
                     this.createEnhancedSounds();
                     
-                    // Создаем элемент для фоновой музыки
-                    this.state.backgroundMusic = new Audio();
-                    this.state.backgroundMusic.loop = true;
-                    this.state.backgroundMusic.volume = this.state.musicVolume;
-                    
-                    // Загружаем стандартную музыку
-                    this.loadDefaultMusic();
+                    // Создаем фоновую музыку
+                    this.createBackgroundMusic();
                     
                     console.log('🔊 Аудио инициализировано');
                 } catch (e) {
@@ -1346,66 +1375,33 @@
                 }
             },
             
-            loadDefaultMusic() {
-                // Создаем простую фоновую музыку с помощью Web Audio API
-                try {
-                    if (this.state.audioContext) {
-                        // Создаем осциллятор для фоновой музыки
-                        const oscillator = this.state.audioContext.createOscillator();
-                        const gainNode = this.state.audioContext.createGain();
-                        
-                        oscillator.connect(gainNode);
-                        gainNode.connect(this.state.audioContext.destination);
-                        
-                        oscillator.frequency.value = 220;
-                        oscillator.type = 'sine';
-                        gainNode.gain.value = 0;
-                        
-                        oscillator.start();
-                        
-                        // Сохраняем для управления
-                        this.state.bgOscillator = oscillator;
-                        this.state.bgGainNode = gainNode;
-                        
-                        this.elements.musicStatus.textContent = '🎶 Музыка: Технологичный саундтрек';
-                    }
-                } catch (e) {
-                    console.log('Не удалось создать фоновую музыку:', e);
-                }
-            },
-            
             createEnhancedSounds() {
                 try {
-                    // Проверяем, доступен ли AudioContext
-                    if (!this.state.audioContext || this.state.audioContext.state === 'suspended') {
-                        this.state.audioContext.resume();
-                    }
-                    
-                    // Приятные, мягкие звуковые эффекты
+                    // Более приятные и разнообразные звуки
                     this.state.sounds = {
-                        // Мягкий клик
-                        click: () => this.playTone(523.25, 0.15, 'sine', 0.3, 0.2),
+                        // Мягкий клик (пианино C4)
+                        click: () => this.playTone(261.63, 0.1, 'sine', 0.05, 0.1),
                         
-                        // Колокольчик для флага
-                        flag: () => this.playTone(659.25, 0.25, 'sine', 0.4, 0.3),
+                        // Колокольчик для флага (колокольчик)
+                        flag: () => this.playBellSound(784.00, 0.3),
                         
-                        // Приятный звук открытия
-                        reveal: () => this.playArpeggio([261.63, 329.63, 392.00], 0.4, 0.3),
+                        // Приятный звук открытия (арпеджио)
+                        reveal: () => this.playArpeggio([523.25, 659.25, 783.99], 0.4, 0.15),
                         
-                        // Глухой взрыв для мины
-                        mine: () => this.playTone(110, 0.8, 'sawtooth', 0.5, 0.1),
+                        // Глухой взрыв для мины (низкий бас)
+                        mine: () => this.playExplosionSound(),
                         
-                        // Радостный звук победы
-                        win: () => this.playArpeggio([523.25, 659.25, 783.99, 1046.50], 0.6, 0.4),
+                        // Радостный звук победы (мажорное арпеджио)
+                        win: () => this.playArpeggio([523.25, 659.25, 783.99, 1046.50], 0.8, 0.2),
                         
-                        // Технологичный звук движения бомбы
-                        bombMove: () => this.playTone(220, 0.4, 'square', 0.4, 0.2),
+                        // Технологичный звук движения бомбы (синтезатор)
+                        bombMove: () => this.playSynthSound(220, 0.4),
                         
-                        // Мягкий звук ошибки
-                        error: () => this.playTone(220, 0.2, 'sine', 0.3, 0.1, true),
+                        // Мягкий звук ошибки (минорная терция)
+                        error: () => this.playTone(220, 0.2, 'sine', 0.1, 0.1, true),
                         
-                        // Приятный звук наведения
-                        hover: () => this.playTone(392.00, 0.1, 'sine', 0.1, 0.05)
+                        // Приятный звук наведения (высокий колокольчик)
+                        hover: () => this.playTone(1046.50, 0.08, 'sine', 0.05, 0.05)
                     };
                 } catch (e) {
                     console.log('Ошибка создания звуков:', e);
@@ -1420,6 +1416,86 @@
                         error: () => {},
                         hover: () => {}
                     };
+                }
+            },
+            
+            createBackgroundMusic() {
+                try {
+                    // Создаем простую фоновую музыку с помощью Web Audio API
+                    const audioContext = this.state.audioContext;
+                    
+                    // Создаем осцилляторы для разных частот
+                    const frequencies = [220, 277.18, 329.63, 440]; // A3, C#4, E4, A4
+                    const gains = [];
+                    const oscillators = [];
+                    
+                    // Создаем основной осциллятор для баса
+                    const bassOsc = audioContext.createOscillator();
+                    const bassGain = audioContext.createGain();
+                    bassOsc.connect(bassGain);
+                    bassGain.connect(audioContext.destination);
+                    bassOsc.frequency.value = 110; // A2
+                    bassOsc.type = 'sine';
+                    bassGain.gain.value = 0;
+                    
+                    // Создаем пару осцилляторов для мелодии
+                    for (let i = 0; i < frequencies.length; i++) {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = frequencies[i];
+                        osc.type = i % 2 === 0 ? 'sine' : 'triangle';
+                        gain.gain.value = 0;
+                        
+                        oscillators.push(osc);
+                        gains.push(gain);
+                    }
+                    
+                    // Сохраняем для управления
+                    this.state.musicOscillators = [bassOsc, ...oscillators];
+                    this.state.musicGains = [bassGain, ...gains];
+                    
+                    // Начинаем осцилляторы (они будут тихими до включения музыки)
+                    bassOsc.start();
+                    oscillators.forEach(osc => osc.start());
+                    
+                    // Создаем функцию для анимации музыки
+                    this.animateMusic();
+                    
+                } catch (e) {
+                    console.log('Не удалось создать фоновую музыку:', e);
+                }
+            },
+            
+            animateMusic() {
+                if (!this.config.musicEnabled || !this.state.musicGains) return;
+                
+                const time = this.state.audioContext.currentTime;
+                const bassGain = this.state.musicGains[0];
+                const melodyGains = this.state.musicGains.slice(1);
+                
+                // Ритмичный бас (каждую секунду)
+                bassGain.gain.setValueAtTime(0, time);
+                bassGain.gain.linearRampToValueAtTime(this.config.musicVolume * 0.2, time + 0.05);
+                bassGain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+                
+                // Случайная мелодия (каждые 2 секунды)
+                setTimeout(() => {
+                    if (this.config.musicEnabled && this.state.isMusicPlaying) {
+                        const melodyIndex = Math.floor(Math.random() * melodyGains.length);
+                        const melodyGain = melodyGains[melodyIndex];
+                        
+                        const melodyTime = this.state.audioContext.currentTime;
+                        melodyGain.gain.setValueAtTime(0, melodyTime);
+                        melodyGain.gain.linearRampToValueAtTime(this.config.musicVolume * 0.1, melodyTime + 0.1);
+                        melodyGain.gain.exponentialRampToValueAtTime(0.001, melodyTime + 0.8);
+                    }
+                }, 2000);
+                
+                // Рекурсивный вызов
+                if (this.state.isMusicPlaying) {
+                    setTimeout(() => this.animateMusic(), 1000);
                 }
             },
             
@@ -1443,8 +1519,8 @@
                     
                     oscillator.type = type;
                     
-                    // Настройка огибающей
-                    const volume = this.state.sfxVolume * 0.25;
+                    // Настройка огибающей с учетом громкости SFX
+                    const volume = this.config.sfxVolume * 0.3;
                     gainNode.gain.setValueAtTime(0.001, this.state.audioContext.currentTime);
                     gainNode.gain.exponentialRampToValueAtTime(volume, this.state.audioContext.currentTime + attack);
                     gainNode.gain.exponentialRampToValueAtTime(0.001, this.state.audioContext.currentTime + attack + decay);
@@ -1453,6 +1529,106 @@
                     oscillator.stop(this.state.audioContext.currentTime + duration);
                 } catch(e) {
                     console.log('Ошибка воспроизведения звука:', e);
+                }
+            },
+            
+            playBellSound(frequency, duration) {
+                if (!this.config.soundEnabled || !this.state.audioContext) return;
+                
+                try {
+                    // Создаем несколько осцилляторов для колокольчика
+                    const osc1 = this.state.audioContext.createOscillator();
+                    const osc2 = this.state.audioContext.createOscillator();
+                    const gainNode = this.state.audioContext.createGain();
+                    
+                    osc1.connect(gainNode);
+                    osc2.connect(gainNode);
+                    gainNode.connect(this.state.audioContext.destination);
+                    
+                    osc1.frequency.value = frequency;
+                    osc2.frequency.value = frequency * 2.5;
+                    osc1.type = 'sine';
+                    osc2.type = 'triangle';
+                    
+                    const volume = this.config.sfxVolume * 0.25;
+                    const now = this.state.audioContext.currentTime;
+                    
+                    gainNode.gain.setValueAtTime(0.001, now);
+                    gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                    
+                    osc1.start(now);
+                    osc2.start(now);
+                    osc1.stop(now + duration);
+                    osc2.stop(now + duration);
+                } catch(e) {
+                    console.log('Ошибка воспроизведения колокольчика:', e);
+                }
+            },
+            
+            playExplosionSound() {
+                if (!this.config.soundEnabled || !this.state.audioContext) return;
+                
+                try {
+                    const oscillator = this.state.audioContext.createOscillator();
+                    const gainNode = this.state.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.state.audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(150, this.state.audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(20, this.state.audioContext.currentTime + 0.8);
+                    oscillator.type = 'sawtooth';
+                    
+                    const volume = this.config.sfxVolume * 0.4;
+                    const now = this.state.audioContext.currentTime;
+                    
+                    gainNode.gain.setValueAtTime(0.001, now);
+                    gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+                    
+                    oscillator.start(now);
+                    oscillator.stop(now + 0.8);
+                } catch(e) {
+                    console.log('Ошибка воспроизведения взрыва:', e);
+                }
+            },
+            
+            playSynthSound(frequency, duration) {
+                if (!this.config.soundEnabled || !this.state.audioContext) return;
+                
+                try {
+                    const oscillator = this.state.audioContext.createOscillator();
+                    const gainNode = this.state.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.state.audioContext.destination);
+                    
+                    // Добавляем вибрато
+                    const vibrato = this.state.audioContext.createOscillator();
+                    const vibratoGain = this.state.audioContext.createGain();
+                    
+                    vibrato.connect(vibratoGain);
+                    vibratoGain.connect(oscillator.frequency);
+                    vibrato.frequency.value = 5;
+                    vibratoGain.gain.value = 10;
+                    
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = 'square';
+                    
+                    const volume = this.config.sfxVolume * 0.2;
+                    const now = this.state.audioContext.currentTime;
+                    
+                    gainNode.gain.setValueAtTime(0.001, now);
+                    gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                    
+                    oscillator.start(now);
+                    vibrato.start(now);
+                    oscillator.stop(now + duration);
+                    vibrato.stop(now + duration);
+                } catch(e) {
+                    console.log('Ошибка воспроизведения синтезатора:', e);
                 }
             },
             
@@ -1474,52 +1650,86 @@
             
             // Управление музыкой
             playMusic() {
-                if (this.state.backgroundMusic && this.config.musicEnabled) {
-                    this.state.backgroundMusic.play().catch(e => {
-                        console.log('Ошибка воспроизведения музыки:', e);
-                        this.elements.musicStatus.textContent = '🎶 Музыка: Ошибка воспроизведения';
-                    });
-                    this.elements.musicStatus.textContent = '🎶 Музыка: Воспроизводится';
-                } else if (this.state.bgGainNode) {
-                    // Используем Web Audio API
-                    this.state.bgGainNode.gain.setValueAtTime(this.state.musicVolume * 0.1, this.state.audioContext.currentTime);
-                    this.elements.musicStatus.textContent = '🎶 Музыка: Воспроизводится';
-                }
+                if (!this.config.musicEnabled || !this.state.musicGains) return;
+                
+                this.state.isMusicPlaying = true;
+                
+                // Включаем музыку плавно
+                const now = this.state.audioContext.currentTime;
+                this.state.musicGains.forEach(gain => {
+                    gain.gain.cancelScheduledValues(now);
+                    gain.gain.setValueAtTime(gain.gain.value, now);
+                    gain.gain.linearRampToValueAtTime(this.config.musicVolume * 0.1, now + 1);
+                });
+                
+                // Запускаем анимацию музыки
+                this.animateMusic();
+                
+                this.elements.musicStatus.textContent = '🎶 Музыка: Воспроизводится';
+                this.showMessage('🎵 Фоновая музыка включена');
             },
             
             pauseMusic() {
-                if (this.state.backgroundMusic) {
-                    this.state.backgroundMusic.pause();
-                    this.elements.musicStatus.textContent = '🎶 Музыка: На паузе';
-                } else if (this.state.bgGainNode) {
-                    this.state.bgGainNode.gain.setValueAtTime(0, this.state.audioContext.currentTime);
-                    this.elements.musicStatus.textContent = '🎶 Музыка: На паузе';
-                }
+                if (!this.state.musicGains) return;
+                
+                this.state.isMusicPlaying = false;
+                
+                const now = this.state.audioContext.currentTime;
+                this.state.musicGains.forEach(gain => {
+                    gain.gain.cancelScheduledValues(now);
+                    gain.gain.setValueAtTime(gain.gain.value, now);
+                    gain.gain.linearRampToValueAtTime(0.001, now + 0.5);
+                });
+                
+                this.elements.musicStatus.textContent = '🎶 Музыка: На паузе';
+                this.showMessage('⏸ Музыка на паузе');
             },
             
             stopMusic() {
-                if (this.state.backgroundMusic) {
-                    this.state.backgroundMusic.pause();
-                    this.state.backgroundMusic.currentTime = 0;
-                    this.elements.musicStatus.textContent = '🎶 Музыка: Остановлена';
-                } else if (this.state.bgGainNode) {
-                    this.state.bgGainNode.gain.setValueAtTime(0, this.state.audioContext.currentTime);
-                    this.elements.musicStatus.textContent = '🎶 Музыка: Остановлена';
-                }
+                if (!this.state.musicGains) return;
+                
+                this.state.isMusicPlaying = false;
+                
+                const now = this.state.audioContext.currentTime;
+                this.state.musicGains.forEach(gain => {
+                    gain.gain.cancelScheduledValues(now);
+                    gain.gain.setValueAtTime(gain.gain.value, now);
+                    gain.gain.linearRampToValueAtTime(0.001, now + 0.3);
+                });
+                
+                this.elements.musicStatus.textContent = '🎶 Музыка: Остановлена';
+                this.showMessage('⏹ Музыка остановлена');
             },
             
             setMusicVolume(volume) {
-                this.state.musicVolume = volume / 100;
-                if (this.state.backgroundMusic) {
-                    this.state.backgroundMusic.volume = this.state.musicVolume;
-                }
-                if (this.state.bgGainNode) {
-                    this.state.bgGainNode.gain.setValueAtTime(this.state.musicVolume * 0.1, this.state.audioContext.currentTime);
+                this.config.musicVolume = volume / 100;
+                this.elements.musicVolumeValue.textContent = volume;
+                
+                // Обновляем громкость если музыка играет
+                if (this.state.isMusicPlaying && this.state.musicGains) {
+                    const now = this.state.audioContext.currentTime;
+                    this.state.musicGains.forEach(gain => {
+                        gain.gain.cancelScheduledValues(now);
+                        gain.gain.setValueAtTime(gain.gain.value, now);
+                        gain.gain.linearRampToValueAtTime(this.config.musicVolume * 0.1, now + 0.5);
+                    });
                 }
             },
             
             setSfxVolume(volume) {
-                this.state.sfxVolume = volume / 100;
+                this.config.sfxVolume = volume / 100;
+                this.elements.sfxVolumeValue.textContent = volume;
+            },
+            
+            toggleMusic() {
+                this.config.musicEnabled = !this.config.musicEnabled;
+                this.elements.musicToggle.checked = this.config.musicEnabled;
+                
+                if (this.config.musicEnabled) {
+                    this.playMusic();
+                } else {
+                    this.pauseMusic();
+                }
             },
             
             initEventListeners() {
@@ -1540,9 +1750,9 @@
                     const file = e.target.files[0];
                     if (file) {
                         const url = URL.createObjectURL(file);
-                        this.state.backgroundMusic.src = url;
+                        this.stopMusic();
                         this.elements.musicStatus.textContent = `🎶 Музыка: ${file.name}`;
-                        this.playMusic();
+                        this.showMessage(`Загружена музыка: ${file.name}`);
                     }
                 });
                 
@@ -1553,6 +1763,16 @@
                 
                 this.elements.sfxVolume.addEventListener('input', (e) => {
                     this.setSfxVolume(e.target.value);
+                });
+                
+                // Переключатели звука
+                this.elements.soundToggle.addEventListener('change', (e) => {
+                    this.config.soundEnabled = e.target.checked;
+                    this.showMessage(this.config.soundEnabled ? '🔊 Звуки включены' : '🔇 Звуки выключены');
+                });
+                
+                this.elements.musicToggle.addEventListener('change', (e) => {
+                    this.toggleMusic();
                 });
                 
                 // Горячие клавиши
@@ -1567,7 +1787,7 @@
                         this.startNewGame();
                     } else if (e.key === 'm' || e.key === 'M') {
                         e.preventDefault();
-                        this.toggleSound();
+                        this.toggleMusic();
                     }
                 });
                 
@@ -1636,11 +1856,6 @@
                 document.getElementById('smart-gen').addEventListener('change', (e) => {
                     this.config.smartGeneration = e.target.checked;
                 });
-                
-                // Управление звуком
-                document.getElementById('sound-toggle').addEventListener('change', (e) => {
-                    this.config.soundEnabled = e.target.checked;
-                });
             },
             
             adjustMineCount() {
@@ -1650,12 +1865,6 @@
                     document.getElementById('mine-count-slider').value = this.config.mines;
                     document.getElementById('mine-value').textContent = this.config.mines;
                 }
-            },
-            
-            toggleSound() {
-                this.config.soundEnabled = !this.config.soundEnabled;
-                document.getElementById('sound-toggle').checked = this.config.soundEnabled;
-                this.showMessage(this.config.soundEnabled ? '🔊 Звук включен' : '🔇 Звук выключен');
             },
             
             showStartScreen() {
@@ -1697,6 +1906,11 @@
                 };
                 
                 this.stopTimers();
+                
+                // Сброс таймеров в UI
+                this.elements.timer.textContent = '000';
+                this.elements.mainTimer.textContent = '000';
+                this.elements.bombTimer.textContent = '12';
             },
             
             // Создание и отображение поля
@@ -2112,8 +2326,9 @@
                         }, 500);
                         lastSecond = this.state.elapsedSeconds;
                     }
-                }, 1000);
+                }, 100);
                 
+                // Таймер бомб
                 this.state.bombTimer = setInterval(() => {
                     this.moveDynamicBombs();
                 }, this.config.bombInterval);
@@ -2208,9 +2423,7 @@
                 
                 if (cellElement) {
                     const wave = document.createElement('div');
-                    const rect = cellElement.getBoundingClientRect();
-                    const boardRect = this.elements.gameBoard.getBoundingClientRect();
-                    
+                    wave.className = 'wave-effect';
                     wave.style.cssText = `
                         position: absolute;
                         width: 45px;
@@ -2219,13 +2432,17 @@
                         border-radius: 50%;
                         pointer-events: none;
                         animation: wave 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                        left: ${rect.left - boardRect.left}px;
-                        top: ${rect.top - boardRect.top}px;
+                        left: ${col * 51 + 25}px;
+                        top: ${row * 51 + 25}px;
                         z-index: 2;
                     `;
                     
                     this.elements.gameBoard.appendChild(wave);
-                    setTimeout(() => wave.remove(), 800);
+                    setTimeout(() => {
+                        if (wave.parentNode) {
+                            wave.parentNode.removeChild(wave);
+                        }
+                    }, 800);
                 }
             },
             
@@ -2294,7 +2511,11 @@
                 const existingMessages = document.querySelectorAll('.message');
                 existingMessages.forEach(msg => {
                     msg.style.animation = 'slideInRight 0.4s ease-out reverse forwards';
-                    setTimeout(() => msg.remove(), 400);
+                    setTimeout(() => {
+                        if (msg.parentNode) {
+                            msg.parentNode.removeChild(msg);
+                        }
+                    }, 400);
                 });
                 
                 const message = document.createElement('div');
@@ -2305,7 +2526,11 @@
                 
                 setTimeout(() => {
                     message.style.animation = 'slideInRight 0.4s ease-out reverse forwards';
-                    setTimeout(() => message.remove(), 400);
+                    setTimeout(() => {
+                        if (message.parentNode) {
+                            message.parentNode.removeChild(message);
+                        }
+                    }, 400);
                 }, 3500);
             }
         };
