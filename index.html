@@ -810,6 +810,11 @@
         .cell.number-7 { color: #e67e22; text-shadow: 0 0 12px rgba(230, 126, 34, 0.7); }
         .cell.number-8 { color: #95a5a6; text-shadow: 0 0 12px rgba(149, 165, 166, 0.7); }
 
+        /* ЦВЕТА ДЛЯ ДИНАМИЧЕСКИХ БОМБ */
+        .cell.dynamic-bombs-1 { color: #ff9f43; text-shadow: 0 0 12px rgba(255, 159, 67, 0.7); }
+        .cell.dynamic-bombs-2 { color: #ff7f00; text-shadow: 0 0 12px rgba(255, 127, 0, 0.7); }
+        .cell.dynamic-bombs-3 { color: #ff5500; text-shadow: 0 0 12px rgba(255, 85, 0, 0.7); }
+
         /* СТАРТОВЫЙ ЭКРАН */
         .start-screen {
             position: absolute;
@@ -1200,7 +1205,7 @@
     </div>
 
     <script>
-        // УЛУЧШЕННАЯ ВЕРСИЯ С ИСПРАВЛЕННЫМИ БАГАМИ И РЕГУЛЯТОРАМИ ГРОМКОСТИ
+        // УЛУЧШЕННАЯ ВЕРСИЯ С РАБОТАЮЩИМИ РЕГУЛЯТОРАМИ ЗВУКА И ДИНАМИЧЕСКИМИ БОМБАМИ
         
         const Game = {
             // Конфигурация
@@ -1907,7 +1912,8 @@
                             isDynamicBomb: false,
                             isRevealed: false,
                             isFlagged: false,
-                            neighborMines: 0
+                            neighborMines: 0,
+                            neighborDynamicBombs: 0  // НОВОЕ: количество динамических бомб рядом
                         };
                     }
                 }
@@ -1973,6 +1979,11 @@
                     } else if (cell.neighborMines > 0) {
                         cellElement.classList.add(`number-${cell.neighborMines}`);
                         cellElement.textContent = cell.neighborMines;
+                    } else if (cell.neighborDynamicBombs > 0) {
+                        // НОВОЕ: отображаем количество динамических бомб рядом
+                        cellElement.classList.add(`dynamic-bombs-${Math.min(cell.neighborDynamicBombs, 3)}`);
+                        cellElement.textContent = cell.neighborDynamicBombs;
+                        cellElement.title = `Рядом ${cell.neighborDynamicBombs} динамических бомб`;
                     }
                 } 
                 // Закрытые клетки
@@ -2021,6 +2032,7 @@
                         this.state.board[r][c].isMine = false;
                         this.state.board[r][c].isDynamicBomb = false;
                         this.state.board[r][c].neighborMines = 0;
+                        this.state.board[r][c].neighborDynamicBombs = 0; // НОВОЕ: сбрасываем счетчик динамических бомб
                     }
                 }
                 
@@ -2082,7 +2094,7 @@
                     bombsPlaced++;
                 }
                 
-                // Считаем соседей
+                // Считаем соседей (включая динамические бомбы)
                 this.calculateNeighbors();
                 
                 // Запускаем таймеры
@@ -2130,8 +2142,14 @@
             calculateNeighbors() {
                 for (let r = 0; r < this.config.rows; r++) {
                     for (let c = 0; c < this.config.cols; c++) {
-                        if (this.state.board[r][c].isMine) continue;
-                        this.state.board[r][c].neighborMines = this.countNeighborMines(r, c, 'isMine');
+                        const cell = this.state.board[r][c];
+                        if (cell.isMine || cell.isDynamicBomb) continue;
+                        
+                        // Считаем обычные мины
+                        cell.neighborMines = this.countNeighborMines(r, c, 'isMine');
+                        
+                        // НОВОЕ: считаем динамические бомбы
+                        cell.neighborDynamicBombs = this.countNeighborMines(r, c, 'isDynamicBomb');
                     }
                 }
             },
@@ -2216,7 +2234,7 @@
                 
                 this.playSound('reveal');
                 
-                if (!cell.isMine && cell.neighborMines === 0) {
+                if (!cell.isMine && cell.neighborMines === 0 && cell.neighborDynamicBombs === 0) {
                     for (let dr = -1; dr <= 1; dr++) {
                         for (let dc = -1; dc <= 1; dc++) {
                             if (dr === 0 && dc === 0) continue;
@@ -2392,7 +2410,10 @@
                     }
                 });
                 
+                // НОВОЕ: пересчитываем соседей после перемещения бомб
+                this.calculateNeighbors();
                 this.renderBoard();
+                
                 this.showMessage(`💣 Бомбы переместились! Ход #${this.state.bombMoveCounter}`);
             },
             
