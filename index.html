@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Динамический Сапёр | Улучшенная версия</title>
+    <title>Динамический Сапёр | Музыкальная версия</title>
     <style>
         /* СБРОС И БАЗОВЫЕ СТИЛИ */
         * {
@@ -543,6 +543,62 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        .audio-panel {
+            background: rgba(40, 40, 50, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .audio-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .audio-btn {
+            padding: 8px 15px;
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid rgba(52, 152, 219, 0.4);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .audio-btn:hover {
+            background: rgba(52, 152, 219, 0.4);
+        }
+
+        .audio-upload {
+            display: none;
+        }
+
+        .audio-upload-label {
+            padding: 8px 15px;
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid rgba(46, 204, 113, 0.4);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .audio-upload-label:hover {
+            background: rgba(46, 204, 113, 0.4);
+        }
+
+        .audio-status {
+            font-size: 0.85rem;
+            color: #bdc3c7;
+            margin-top: 10px;
+            display: block;
+        }
+
         /* СООБЩЕНИЯ */
         .message {
             position: fixed;
@@ -562,52 +618,6 @@
         @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* ПОБЕДА/ПОРАЖЕНИЕ */
-        .game-result {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(15px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            padding: 30px;
-            text-align: center;
-            z-index: 100;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .result-title {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-        }
-
-        .result-title.win {
-            background: linear-gradient(45deg, #2ecc71, #27ae60);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
-        }
-
-        .result-title.lose {
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
-        }
-
-        .result-stats {
-            font-size: 1.2rem;
-            color: #bdc3c7;
-            margin-bottom: 20px;
         }
 
         /* АДАПТИВНОСТЬ */
@@ -709,7 +719,7 @@
 
                 <!-- НАСТРОЙКИ -->
                 <div class="settings-panel">
-                    <div class="settings-title">⚙️ НАСТРОЙКИ</div>
+                    <div class="settings-title">⚙️ НАСТРОЙКИ ИГРЫ</div>
                     
                     <div class="setting-group">
                         <label class="setting-label">
@@ -743,9 +753,35 @@
                             <input type="checkbox" id="sound-toggle" checked>
                             <label class="setting-label">🔊 Звуковые эффекты</label>
                         </div>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="music-toggle" checked>
-                            <label class="setting-label">🎵 Фоновая музыка</label>
+                        
+                        <!-- ФОНОВАЯ МУЗЫКА -->
+                        <div class="audio-panel">
+                            <div class="settings-title">🎵 ФОНОВАЯ МУЗЫКА</div>
+                            <div class="audio-controls">
+                                <button class="audio-btn" id="play-music">▶ Включить</button>
+                                <button class="audio-btn" id="pause-music">⏸ Пауза</button>
+                                <button class="audio-btn" id="stop-music">⏹ Стоп</button>
+                                
+                                <!-- Кнопка для загрузки своей музыки -->
+                                <label for="music-upload" class="audio-upload-label">
+                                    📁 Загрузить MP3
+                                </label>
+                                <input type="file" id="music-upload" class="audio-upload" accept="audio/mp3,audio/*">
+                            </div>
+                            
+                            <!-- Регулятор громкости музыки -->
+                            <div class="setting-group">
+                                <label class="setting-label">Громкость музыки:</label>
+                                <input type="range" id="music-volume" min="0" max="100" value="50">
+                            </div>
+                            
+                            <!-- Регулятор громкости звуков -->
+                            <div class="setting-group">
+                                <label class="setting-label">Громкость звуков игры:</label>
+                                <input type="range" id="sfx-volume" min="0" max="100" value="70">
+                            </div>
+                            
+                            <span class="audio-status" id="music-status">Музыка: Технологичный саундтрек</span>
                         </div>
                     </div>
                 </div>
@@ -788,7 +824,7 @@
     </div>
 
     <script>
-        // УЛУЧШЕННАЯ ВЕРСИЯ С ЗВУКАМИ И ИСПРАВЛЕННЫМ ТАЙМЕРОМ
+        // УЛУЧШЕННАЯ ВЕРСИЯ С МУЗЫКОЙ И РЕГУЛЯТОРАМИ ГРОМКОСТИ
         
         const Game = {
             // Конфигурация
@@ -818,7 +854,10 @@
                 elapsedSeconds: 0,
                 lastMoveHistory: [],
                 audioContext: null,
-                sounds: {}
+                sounds: {},
+                backgroundMusic: null,
+                musicVolume: 0.5,
+                sfxVolume: 0.7
             },
             
             // DOM элементы
@@ -849,7 +888,14 @@
                     timer: document.getElementById('timer'),
                     mineCount: document.getElementById('mine-count'),
                     bombCount: document.getElementById('bomb-count'),
-                    bombTimer: document.getElementById('bomb-timer')
+                    bombTimer: document.getElementById('bomb-timer'),
+                    playMusicBtn: document.getElementById('play-music'),
+                    pauseMusicBtn: document.getElementById('pause-music'),
+                    stopMusicBtn: document.getElementById('stop-music'),
+                    musicUpload: document.getElementById('music-upload'),
+                    musicVolume: document.getElementById('music-volume'),
+                    sfxVolume: document.getElementById('sfx-volume'),
+                    musicStatus: document.getElementById('music-status')
                 };
             },
             
@@ -861,12 +907,28 @@
                     // Создаем звуки
                     this.createSounds();
                     
+                    // Создаем элемент для фоновой музыки
+                    this.state.backgroundMusic = new Audio();
+                    this.state.backgroundMusic.loop = true;
+                    this.state.backgroundMusic.volume = this.state.musicVolume;
+                    
+                    // Устанавливаем встроенную музыку по умолчанию (базовая ссылка)
+                    this.setDefaultMusic();
+                    
                     console.log('🔊 Аудио инициализировано');
                 } catch (e) {
                     console.log('⚠️ Аудио не поддерживается в этом браузере');
                     this.config.soundEnabled = false;
                     this.config.musicEnabled = false;
                 }
+            },
+            
+            // Устанавливаем музыку по умолчанию (встроенный вариант)
+            setDefaultMusic() {
+                // Здесь можно указать прямую ссылку на музыку, если она есть
+                // Для примера используем небольшую музыкальную последовательность через Base64
+                // На практике лучше загружать свой MP3 файл через кнопку загрузки
+                this.elements.musicStatus.textContent = 'Музыка: Используйте кнопку "Загрузить MP3"';
             },
             
             createSounds() {
@@ -886,20 +948,26 @@
                 return () => {
                     if (!this.config.soundEnabled || !this.state.audioContext) return;
                     
-                    const oscillator = this.state.audioContext.createOscillator();
-                    const gainNode = this.state.audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(this.state.audioContext.destination);
-                    
-                    oscillator.frequency.value = frequency;
-                    oscillator.type = type;
-                    
-                    gainNode.gain.setValueAtTime(0.1, this.state.audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.state.audioContext.currentTime + duration);
-                    
-                    oscillator.start(this.state.audioContext.currentTime);
-                    oscillator.stop(this.state.audioContext.currentTime + duration);
+                    try {
+                        const oscillator = this.state.audioContext.createOscillator();
+                        const gainNode = this.state.audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(this.state.audioContext.destination);
+                        
+                        oscillator.frequency.value = frequency;
+                        oscillator.type = type;
+                        
+                        // Применяем громкость звуков
+                        const volume = this.state.sfxVolume * 0.3; // Коэффициент для нормализации
+                        gainNode.gain.setValueAtTime(volume, this.state.audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.001, this.state.audioContext.currentTime + duration);
+                        
+                        oscillator.start(this.state.audioContext.currentTime);
+                        oscillator.stop(this.state.audioContext.currentTime + duration);
+                    } catch(e) {
+                        console.log('Ошибка воспроизведения звука:', e);
+                    }
                 };
             },
             
@@ -909,13 +977,75 @@
                 }
             },
             
+            // Управление музыкой
+            playMusic() {
+                if (this.state.backgroundMusic && this.config.musicEnabled) {
+                    this.state.backgroundMusic.play().catch(e => {
+                        console.log('Ошибка воспроизведения музыки:', e);
+                        this.elements.musicStatus.textContent = 'Музыка: Ошибка воспроизведения';
+                    });
+                    this.elements.musicStatus.textContent = 'Музыка: Воспроизводится';
+                }
+            },
+            
+            pauseMusic() {
+                if (this.state.backgroundMusic) {
+                    this.state.backgroundMusic.pause();
+                    this.elements.musicStatus.textContent = 'Музыка: На паузе';
+                }
+            },
+            
+            stopMusic() {
+                if (this.state.backgroundMusic) {
+                    this.state.backgroundMusic.pause();
+                    this.state.backgroundMusic.currentTime = 0;
+                    this.elements.musicStatus.textContent = 'Музыка: Остановлена';
+                }
+            },
+            
+            setMusicVolume(volume) {
+                this.state.musicVolume = volume / 100;
+                if (this.state.backgroundMusic) {
+                    this.state.backgroundMusic.volume = this.state.musicVolume;
+                }
+            },
+            
+            setSfxVolume(volume) {
+                this.state.sfxVolume = volume / 100;
+            },
+            
             initEventListeners() {
-                // Основные кнопки
+                // Основные кнопки игры
                 this.elements.startGameBtn.addEventListener('click', () => this.startNewGame());
                 this.elements.startButtonMain.addEventListener('click', () => this.startNewGame());
                 this.elements.restartBtn.addEventListener('click', () => this.startNewGame());
                 this.elements.hintBtn.addEventListener('click', () => this.giveHint());
                 this.elements.undoBtn.addEventListener('click', () => this.undoMove());
+                
+                // Управление музыкой
+                this.elements.playMusicBtn.addEventListener('click', () => this.playMusic());
+                this.elements.pauseMusicBtn.addEventListener('click', () => this.pauseMusic());
+                this.elements.stopMusicBtn.addEventListener('click', () => this.stopMusic());
+                
+                // Загрузка своей музыки
+                this.elements.musicUpload.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const url = URL.createObjectURL(file);
+                        this.state.backgroundMusic.src = url;
+                        this.elements.musicStatus.textContent = `Музыка: ${file.name}`;
+                        this.playMusic();
+                    }
+                });
+                
+                // Регуляторы громкости
+                this.elements.musicVolume.addEventListener('input', (e) => {
+                    this.setMusicVolume(e.target.value);
+                });
+                
+                this.elements.sfxVolume.addEventListener('input', (e) => {
+                    this.setSfxVolume(e.target.value);
+                });
                 
                 // Горячие клавиши
                 document.addEventListener('keydown', (e) => {
@@ -980,10 +1110,6 @@
                 document.getElementById('sound-toggle').addEventListener('change', (e) => {
                     this.config.soundEnabled = e.target.checked;
                 });
-                
-                document.getElementById('music-toggle').addEventListener('change', (e) => {
-                    this.config.musicEnabled = e.target.checked;
-                });
             },
             
             toggleSound() {
@@ -1033,6 +1159,7 @@
                 this.stopTimers();
             },
             
+            // УЛУЧШЕННОЕ СОЗДАНИЕ И ОТОБРАЖЕНИЕ ПОЛЯ (без мерцания)
             createBoard() {
                 this.state.board = [];
                 
@@ -1046,17 +1173,100 @@
                             isDynamicBomb: false,
                             isRevealed: false,
                             isFlagged: false,
-                            isQuestion: false,
-                            neighborMines: 0,
-                            wasFlagged: false
+                            neighborMines: 0
                         };
                     }
                 }
             },
             
-            // УЛУЧШЕННАЯ ГЕНЕРАЦИЯ МИН
+            renderBoard() {
+                // Проверяем, нужно ли создавать поле заново
+                const existingCells = this.elements.gameBoard.querySelectorAll('.cell');
+                
+                if (existingCells.length === 0 || 
+                    existingCells.length !== this.config.rows * this.config.cols) {
+                    // Первоначальное создание поля
+                    this.elements.gameBoard.innerHTML = '';
+                    this.elements.gameBoard.style.gridTemplateColumns = `repeat(${this.config.cols}, 1fr)`;
+                    this.elements.gameBoard.style.gridTemplateRows = `repeat(${this.config.rows}, 1fr)`;
+                    
+                    for (let r = 0; r < this.config.rows; r++) {
+                        for (let c = 0; c < this.config.cols; c++) {
+                            this.createCellElement(r, c);
+                        }
+                    }
+                } else {
+                    // Только обновляем измененные клетки (оптимизация от мерцания)
+                    this.updateChangedCells();
+                }
+            },
+            
+            createCellElement(row, col) {
+                const cell = this.state.board[row][col];
+                const cellElement = document.createElement('div');
+                cellElement.className = 'cell';
+                cellElement.dataset.row = row;
+                cellElement.dataset.col = col;
+                
+                this.updateCellAppearance(cellElement, cell);
+                
+                // Обработчики событий
+                cellElement.addEventListener('click', (e) => this.handleCellClick(row, col, e));
+                cellElement.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    this.handleRightClick(row, col);
+                });
+                
+                this.elements.gameBoard.appendChild(cellElement);
+            },
+            
+            updateCellAppearance(cellElement, cell) {
+                // Сбрасываем классы
+                cellElement.className = 'cell';
+                cellElement.textContent = '';
+                
+                // Открытые клетки
+                if (cell.isRevealed) {
+                    cellElement.classList.add('revealed');
+                    
+                    if (cell.isMine) {
+                        cellElement.classList.add('mine');
+                        cellElement.innerHTML = '💣';
+                    } else if (cell.isDynamicBomb) {
+                        cellElement.classList.add('dynamic-bomb');
+                        cellElement.innerHTML = '💥';
+                    } else if (cell.neighborMines > 0) {
+                        cellElement.classList.add(`number-${cell.neighborMines}`);
+                        cellElement.textContent = cell.neighborMines;
+                    }
+                } 
+                // Закрытые клетки
+                else {
+                    if (cell.isFlagged) {
+                        cellElement.classList.add('flagged');
+                    }
+                }
+            },
+            
+            updateChangedCells() {
+                // Обновляем только те клетки, которые изменились
+                for (let r = 0; r < this.config.rows; r++) {
+                    for (let c = 0; c < this.config.cols; c++) {
+                        const cell = this.state.board[r][c];
+                        const cellElement = this.elements.gameBoard.querySelector(
+                            `.cell[data-row="${r}"][data-col="${c}"]`
+                        );
+                        
+                        if (cellElement) {
+                            this.updateCellAppearance(cellElement, cell);
+                        }
+                    }
+                }
+            },
+            
+            // Остальные методы игры остаются без изменений
             generateMines(firstRow, firstCol) {
-                console.log('💣 Улучшенная генерация мин...');
+                console.log('💣 Генерация мин...');
                 
                 const safeZone = this.getSafeZone(firstRow, firstCol);
                 const totalCells = this.config.rows * this.config.cols;
@@ -1066,11 +1276,9 @@
                 const maxMines = totalCells - safeZoneSize - this.config.dynamicBombs;
                 this.config.mines = Math.min(this.config.mines, maxMines);
                 
-                // Обновляем слайдер и значение
                 document.getElementById('mine-count-slider').value = this.config.mines;
                 document.getElementById('mine-value').textContent = this.config.mines;
                 
-                // Создаем массив всех клеток
                 const allCells = [];
                 for (let r = 0; r < this.config.rows; r++) {
                     for (let c = 0; c < this.config.cols; c++) {
@@ -1081,15 +1289,17 @@
                 }
                 
                 // Перемешиваем массив
-                this.shuffleArray(allCells);
+                for (let i = allCells.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [allCells[i], allCells[j]] = [allCells[j], allCells[i]];
+                }
                 
-                // Распределяем мины равномерно
+                // Распределяем мины
                 let minesPlaced = 0;
                 for (let i = 0; i < allCells.length && minesPlaced < this.config.mines; i++) {
                     const { r, c } = allCells[i];
                     
                     if (this.config.smartGeneration) {
-                        // Проверяем, чтобы вокруг было не более 1 мины
                         if (this.countNeighborMines(r, c, 'isMine') < 2) {
                             this.state.board[r][c].isMine = true;
                             minesPlaced++;
@@ -1100,25 +1310,16 @@
                     }
                 }
                 
-                // Если не удалось расставить все мины из-за умной генерации
-                if (minesPlaced < this.config.mines) {
-                    // Расставляем оставшиеся мины без ограничений
-                    for (let i = 0; i < allCells.length && minesPlaced < this.config.mines; i++) {
-                        const { r, c } = allCells[i];
-                        if (!this.state.board[r][c].isMine) {
-                            this.state.board[r][c].isMine = true;
-                            minesPlaced++;
-                        }
-                    }
-                }
-                
                 // Расставляем динамические бомбы
                 let bombsPlaced = 0;
                 const availableForBombs = allCells.filter(({ r, c }) => 
                     !this.state.board[r][c].isMine && !safeZone.has(`${r},${c}`)
                 );
                 
-                this.shuffleArray(availableForBombs);
+                for (let i = availableForBombs.length - 1; i > 0 && bombsPlaced < this.config.dynamicBombs; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [availableForBombs[i], availableForBombs[j]] = [availableForBombs[j], availableForBombs[i]];
+                }
                 
                 for (let i = 0; i < availableForBombs.length && bombsPlaced < this.config.dynamicBombs; i++) {
                     const { r, c } = availableForBombs[i];
@@ -1135,17 +1336,9 @@
                 console.log(`✅ Расставлено: ${minesPlaced} мин, ${bombsPlaced} динамических бомб`);
             },
             
-            shuffleArray(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-            },
-            
             getSafeZone(row, col) {
                 const safeZone = new Set();
                 
-                // Безопасная зона 3x3 вокруг первого клика
                 for (let dr = -1; dr <= 1; dr++) {
                     for (let dc = -1; dc <= 1; dc++) {
                         const nr = row + dr;
@@ -1188,97 +1381,37 @@
                 }
             },
             
-            renderBoard() {
-                this.elements.gameBoard.innerHTML = '';
-                this.elements.gameBoard.style.gridTemplateColumns = `repeat(${this.config.cols}, 1fr)`;
-                this.elements.gameBoard.style.gridTemplateRows = `repeat(${this.config.rows}, 1fr)`;
-                
-                for (let r = 0; r < this.config.rows; r++) {
-                    for (let c = 0; c < this.config.cols; c++) {
-                        const cell = this.state.board[r][c];
-                        const cellElement = document.createElement('div');
-                        cellElement.className = 'cell';
-                        cellElement.dataset.row = r;
-                        cellElement.dataset.col = c;
-                        
-                        // Открытые клетки
-                        if (cell.isRevealed) {
-                            cellElement.classList.add('revealed');
-                            
-                            if (cell.isMine) {
-                                cellElement.classList.add('mine');
-                                cellElement.innerHTML = '💣';
-                            } else if (cell.isDynamicBomb) {
-                                cellElement.classList.add('dynamic-bomb');
-                                cellElement.innerHTML = '💥';
-                            } else if (cell.neighborMines > 0) {
-                                cellElement.classList.add(`number-${cell.neighborMines}`);
-                                cellElement.textContent = cell.neighborMines;
-                            }
-                        } 
-                        // Закрытые клетки
-                        else {
-                            if (cell.isFlagged) {
-                                cellElement.classList.add('flagged');
-                            }
-                        }
-                        
-                        // Динамические бомбы (видимые только если открыты)
-                        if (cell.isDynamicBomb && !cell.isRevealed) {
-                            // Не показываем закрытые динамические бомбы
-                        }
-                        
-                        // Обработчики событий
-                        cellElement.addEventListener('click', (e) => this.handleCellClick(r, c, e));
-                        cellElement.addEventListener('contextmenu', (e) => {
-                            e.preventDefault();
-                            this.handleRightClick(r, c);
-                        });
-                        
-                        this.elements.gameBoard.appendChild(cellElement);
-                    }
-                }
-            },
-            
             handleCellClick(row, col, event) {
                 if (this.state.gameOver || this.state.gameWon) return;
                 
                 const cell = this.state.board[row][col];
                 
-                // Игнорируем помеченные клетки
                 if (cell.isFlagged) {
                     this.playSound('error');
                     return;
                 }
                 
-                // Первый клик - генерируем поле
                 if (this.state.firstClick) {
                     this.state.firstClick = false;
                     this.generateMines(row, col);
                     this.playSound('click');
                 }
                 
-                // Сохраняем состояние для отмены
                 this.saveMoveState();
                 
-                // Проверка на мину
                 if (cell.isMine) {
                     this.playSound('mine');
                     this.gameOver(false);
                     return;
                 }
                 
-                // Проверка на динамическую бомбу
                 if (cell.isDynamicBomb) {
                     this.playSound('mine');
                     this.gameOver(false);
                     return;
                 }
                 
-                // Открываем клетку
                 this.revealCell(row, col);
-                
-                // Проверка победы
                 this.checkWin();
             },
             
@@ -1288,10 +1421,8 @@
                 const cell = this.state.board[row][col];
                 if (cell.isRevealed) return;
                 
-                // Сохраняем состояние для отмены
                 this.saveMoveState();
                 
-                // Переключаем флаг
                 cell.isFlagged = !cell.isFlagged;
                 if (cell.isFlagged) {
                     this.state.flaggedCount++;
@@ -1306,7 +1437,6 @@
             },
             
             saveMoveState() {
-                // Сохраняем историю последних ходов для отмены
                 const stateSnapshot = {
                     board: JSON.parse(JSON.stringify(this.state.board)),
                     flaggedCount: this.state.flaggedCount,
@@ -1315,7 +1445,6 @@
                 
                 this.state.lastMoveHistory.push(stateSnapshot);
                 
-                // Ограничиваем историю последними 10 ходами
                 if (this.state.lastMoveHistory.length > 10) {
                     this.state.lastMoveHistory.shift();
                 }
@@ -1332,7 +1461,6 @@
                 
                 this.playSound('reveal');
                 
-                // Если пустая клетка - открываем соседей
                 if (!cell.isMine && cell.neighborMines === 0) {
                     for (let dr = -1; dr <= 1; dr++) {
                         for (let dc = -1; dc <= 1; dc++) {
@@ -1360,7 +1488,6 @@
                 
                 this.stopTimers();
                 
-                // Показываем все мины
                 for (let r = 0; r < this.config.rows; r++) {
                     for (let c = 0; c < this.config.cols; c++) {
                         const cell = this.state.board[r][c];
@@ -1387,23 +1514,19 @@
                 }
             },
             
-            // ИСПРАВЛЕННЫЙ ТАЙМЕР
             startTimers() {
                 this.state.startTime = Date.now();
                 this.state.elapsedSeconds = 0;
                 
-                // Основной таймер
                 this.state.timerInterval = setInterval(() => {
                     this.state.elapsedSeconds = Math.floor((Date.now() - this.state.startTime) / 1000);
                     this.elements.timer.textContent = this.state.elapsedSeconds.toString().padStart(3, '0');
                 }, 1000);
                 
-                // Таймер бомб
                 this.state.bombTimer = setInterval(() => {
                     this.moveDynamicBombs();
                 }, this.config.bombInterval);
                 
-                // Обновляем отображение таймера бомб
                 this.updateBombTimer();
             },
             
@@ -1422,7 +1545,6 @@
                         }
                     }, 1000);
                     
-                    // Перезапускаем отсчет после движения бомб
                     setTimeout(() => {
                         this.updateBombTimer();
                     }, this.config.bombInterval);
@@ -1440,14 +1562,12 @@
                 }
             },
             
-            // ПЕРЕМЕЩЕНИЕ ДИНАМИЧЕСКИХ БОМБ
             moveDynamicBombs() {
                 if (this.state.gameOver || this.state.gameWon) return;
                 
                 this.state.bombMoveCounter++;
                 this.playSound('bombMove');
                 
-                // Находим все динамические бомбы
                 const bombs = [];
                 for (let r = 0; r < this.config.rows; r++) {
                     for (let c = 0; c < this.config.cols; c++) {
@@ -1457,11 +1577,9 @@
                     }
                 }
                 
-                // Перемещаем каждую бомбу
                 bombs.forEach(bomb => {
                     const possibleMoves = [];
                     
-                    // Ищем доступные клетки
                     for (let dr = -1; dr <= 1; dr++) {
                         for (let dc = -1; dc <= 1; dc++) {
                             if (dr === 0 && dc === 0) continue;
@@ -1478,15 +1596,12 @@
                         }
                     }
                     
-                    // Если есть куда двигаться
                     if (possibleMoves.length > 0) {
                         const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
                         
-                        // Перемещаем бомбу
                         this.state.board[bomb.r][bomb.c].isDynamicBomb = false;
                         this.state.board[move.r][move.c].isDynamicBomb = true;
                         
-                        // Визуальный эффект
                         this.createWaveEffect(move.r, move.c);
                     }
                 });
@@ -1514,7 +1629,6 @@
                 setTimeout(() => wave.remove(), 600);
             },
             
-            // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
             giveHint() {
                 if (this.state.gameOver || this.state.gameWon || this.state.firstClick) {
                     this.showMessage('Сначала сделайте первый ход');
@@ -1522,7 +1636,6 @@
                     return;
                 }
                 
-                // Ищем безопасную клетку
                 const safeCells = [];
                 for (let r = 0; r < this.config.rows; r++) {
                     for (let c = 0; c < this.config.cols; c++) {
@@ -1534,11 +1647,9 @@
                 }
                 
                 if (safeCells.length > 0) {
-                    // Выбираем клетку с наименьшим количеством соседних мин
                     safeCells.sort((a, b) => a.cell.neighborMines - b.cell.neighborMines);
                     const hint = safeCells[0];
                     
-                    // Подсвечиваем
                     const cellElement = this.elements.gameBoard.querySelector(
                         `.cell[data-row="${hint.r}"][data-col="${hint.c}"]`
                     );
@@ -1573,23 +1684,19 @@
             },
             
             updateUI() {
-                // Счетчик мин
                 const remainingMines = this.config.mines - this.state.flaggedCount;
                 this.elements.mineCount.textContent = Math.max(0, remainingMines).toString().padStart(3, '0');
                 
-                // Счетчик бомб
                 this.elements.bombCount.textContent = this.config.dynamicBombs;
             },
             
             showMessage(text) {
-                // Удаляем предыдущие сообщения
                 const existingMessages = document.querySelectorAll('.message');
                 existingMessages.forEach(msg => {
                     msg.style.animation = 'slideInRight 0.3s ease-out reverse forwards';
                     setTimeout(() => msg.remove(), 300);
                 });
                 
-                // Создаем новое уведомление
                 const message = document.createElement('div');
                 message.className = 'message';
                 message.textContent = text;
@@ -1614,11 +1721,6 @@
             @keyframes wave {
                 0% { transform: scale(0.5); opacity: 1; border-width: 3px; }
                 100% { transform: scale(3); opacity: 0; border-width: 1px; }
-            }
-            
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
             }
         `;
         document.head.appendChild(style);
