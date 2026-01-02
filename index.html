@@ -17,47 +17,56 @@
             --cc-blue: #2196f3;
             --cc-yellow: #ffd54f;
             --cc-dark: #3e2723;
+            --cc-orange: #ff9800;
+            --cc-purple: #9c27b0;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
             background: linear-gradient(135deg, var(--cc-dark) 0%, var(--cc-brown) 100%);
             min-height: 100vh;
             color: white;
-            padding: 20px;
+            padding: 10px;
             overflow-x: hidden;
+            touch-action: manipulation;
         }
         
         /* Навигация */
         .nav {
-            background: rgba(0,0,0,0.3);
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 12px 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 2px solid var(--cc-light-brown);
-            backdrop-filter: blur(10px);
+            border: 3px solid var(--cc-gold);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
         }
         
         .logo {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            color: var(--cc-yellow);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
         .logo::before {
             content: '🍪';
-            font-size: 32px;
+            font-size: 36px;
+            animation: cookieSpin 10s linear infinite;
         }
         
         .nav-buttons {
@@ -66,64 +75,118 @@
         }
         
         .nav-btn {
-            background: var(--cc-blue);
+            background: linear-gradient(145deg, var(--cc-blue), #1976d2);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
+            padding: 10px 18px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .nav-btn:hover {
-            background: #1976d2;
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        
+        .nav-btn:active {
+            transform: translateY(-1px) scale(0.98);
         }
         
         .nav-btn.save {
-            background: var(--cc-green);
+            background: linear-gradient(145deg, var(--cc-green), #388e3c);
         }
         
         .nav-btn.reset {
-            background: var(--cc-red);
+            background: linear-gradient(145deg, var(--cc-red), #d32f2f);
         }
         
         /* Статистика */
         .stats {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 2px solid var(--cc-light-brown);
-            backdrop-filter: blur(10px);
+            border: 3px solid var(--cc-light-brown);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 3s infinite;
         }
         
         .cookie-display {
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
         
         .cookie-count {
-            font-size: 42px;
+            font-size: 48px;
             font-weight: bold;
             color: var(--cc-yellow);
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            text-shadow: 0 3px 15px rgba(255, 213, 79, 0.5);
+            transition: all 0.3s;
+        }
+        
+        .cookie-count.animate {
+            animation: cookieBounce 0.3s ease;
         }
         
         .cookie-count::before {
             content: '🍪 ';
+            animation: cookieFloat 2s ease-in-out infinite;
         }
         
         .cps-display {
-            font-size: 20px;
+            font-size: 22px;
             color: var(--cc-gold);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .cps-display::before {
-            content: '⚡ ';
+            content: '⚡';
+            animation: lightning 1.5s infinite;
+        }
+        
+        .other-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 16px;
+            color: var(--cc-dark-beige);
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+        }
+        
+        .other-stats span {
+            color: white;
+            font-weight: bold;
         }
         
         /* Главная печенька */
@@ -134,92 +197,147 @@
         }
         
         .big-cookie {
-            width: 300px;
-            height: 300px;
+            width: 320px;
+            height: 320px;
             margin: 0 auto;
             cursor: pointer;
             position: relative;
-            transition: transform 0.1s;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
         
         .big-cookie:hover {
-            transform: scale(1.05);
+            transform: scale(1.08) rotate(5deg);
         }
         
         .big-cookie:active {
-            transform: scale(0.95);
+            transform: scale(0.92) rotate(-5deg);
+            animation: cookieSquash 0.1s ease;
         }
         
         .cookie-svg {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
+            transition: filter 0.3s;
+        }
+        
+        .big-cookie:hover .cookie-svg {
+            filter: drop-shadow(0 20px 30px rgba(255, 213, 79, 0.3));
+        }
+        
+        .cookie-shine {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: shineRotate 20s linear infinite;
         }
         
         .cookie-click-effect {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--cc-yellow);
-            font-weight: bold;
-            font-size: 24px;
             pointer-events: none;
             opacity: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 100;
+        }
+        
+        .cookie-crumbs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .cookie-crumb {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--cc-brown);
+            border-radius: 50%;
+            opacity: 0;
         }
         
         /* Генераторы */
         .generators {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 2px solid var(--cc-light-brown);
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 3px solid var(--cc-light-brown);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
         
         .section-title {
             color: var(--cc-yellow);
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 28px;
+            margin-bottom: 25px;
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
         .section-title::before {
             content: '🏭';
+            animation: factoryPulse 2s infinite;
         }
         
         .generators-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 18px;
         }
         
         .generator {
-            background: rgba(255,255,255,0.15);
-            border-radius: 8px;
-            padding: 15px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            border-radius: 12px;
+            padding: 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border: 2px solid transparent;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .generator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .generator:hover::before {
+            left: 100%;
         }
         
         .generator:hover {
-            border-color: var(--cc-yellow);
-            transform: translateY(-3px);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
         
         .generator.affordable {
             border-color: var(--cc-green);
+            background: linear-gradient(145deg, rgba(76,175,80,0.2), rgba(76,175,80,0.1));
+        }
+        
+        .generator.affordable .generator-name {
+            color: var(--cc-yellow);
         }
         
         .generator-info {
@@ -228,100 +346,168 @@
         
         .generator-name {
             font-weight: bold;
-            font-size: 18px;
+            font-size: 20px;
             color: white;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            margin-bottom: 8px;
         }
         
         .generator-emoji {
-            font-size: 24px;
+            font-size: 28px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
         
         .generator-stats {
-            font-size: 14px;
+            font-size: 15px;
             color: var(--cc-dark-beige);
-            margin-top: 5px;
+            line-height: 1.4;
         }
         
         .generator-cost {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             color: var(--cc-green);
-            margin-right: 15px;
+            margin-right: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .generator-cost::before {
-            content: '🍪 ';
+            content: '🍪';
+            animation: cookieFloat 3s ease-in-out infinite;
         }
         
         .buy-btn {
-            background: var(--cc-green);
+            background: linear-gradient(145deg, var(--cc-green), #388e3c);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            font-size: 15px;
+            min-width: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .buy-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+            transition: transform 0.6s;
+            transform: translateX(-100%) rotate(45deg);
+        }
+        
+        .buy-btn:hover::after {
+            transform: translateX(100%) rotate(45deg);
         }
         
         .buy-btn:hover:not(:disabled) {
-            background: #388e3c;
-            transform: translateY(-2px);
+            background: linear-gradient(145deg, #43a047, #2e7d32);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        
+        .buy-btn:active:not(:disabled) {
+            transform: translateY(0) scale(0.95);
         }
         
         .buy-btn:disabled {
-            background: #666;
+            background: linear-gradient(145deg, #666, #555);
             cursor: not-allowed;
             opacity: 0.6;
+            transform: none;
         }
         
         /* Улучшения */
         .upgrades {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 2px solid var(--cc-light-brown);
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 3px solid var(--cc-purple);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
         
         .upgrades-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 18px;
         }
         
         .upgrade {
-            background: rgba(255,255,255,0.15);
-            border-radius: 8px;
-            padding: 15px;
+            background: linear-gradient(145deg, rgba(156,39,176,0.2), rgba(156,39,176,0.1));
+            border-radius: 12px;
+            padding: 20px;
             border: 2px solid transparent;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            overflow: hidden;
+        }
+        
+        .upgrade::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .upgrade:hover::before {
+            opacity: 1;
+        }
+        
+        .upgrade:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(156,39,176,0.3);
         }
         
         .upgrade.affordable {
             border-color: var(--cc-gold);
+            background: linear-gradient(145deg, rgba(255,215,0,0.2), rgba(255,215,0,0.1));
         }
         
         .upgrade.purchased {
             border-color: var(--cc-green);
-            background: rgba(76, 175, 80, 0.1);
+            background: linear-gradient(145deg, rgba(76,175,80,0.3), rgba(76,175,80,0.2));
         }
         
         .upgrade-name {
             font-weight: bold;
             color: var(--cc-yellow);
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .upgrade-name::before {
+            content: '⭐';
+            animation: starTwinkle 2s infinite;
         }
         
         .upgrade-description {
-            font-size: 14px;
+            font-size: 15px;
             color: var(--cc-dark-beige);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            line-height: 1.4;
         }
         
         .upgrade-cost {
@@ -329,7 +515,13 @@
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            font-size: 16px;
+        }
+        
+        .upgrade-cost::before {
+            content: '🍪';
+            animation: cookieFloat 2s ease-in-out infinite;
         }
         
         /* Футер */
@@ -337,31 +529,90 @@
             text-align: center;
             margin-top: 40px;
             color: var(--cc-light-brown);
-            font-size: 14px;
-            padding: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 15px;
+            padding: 25px;
+            border-top: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
         }
         
         /* Анимации */
-        @keyframes clickEffect {
+        @keyframes cookieSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes cookieFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes cookieBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes cookieSquash {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.9); }
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes shineRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes lightning {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+        
+        @keyframes factoryPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes clickFloat {
             0% {
                 transform: translate(-50%, -50%) scale(0.5);
                 opacity: 1;
             }
             100% {
-                transform: translate(-50%, -100%) scale(1.5);
+                transform: translate(-50%, -150px) scale(1.5);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes crumbFly {
+            0% {
+                transform: translate(0, 0) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1);
                 opacity: 0;
             }
         }
         
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 213, 79, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 213, 79, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 213, 79, 0); }
         }
         
         .pulse {
-            animation: pulse 1s infinite;
+            animation: pulse 2s infinite;
         }
         
         /* Модальное окно */
@@ -372,44 +623,145 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .modal-content {
-            background: var(--cc-brown);
-            padding: 30px;
-            border-radius: 10px;
+            background: linear-gradient(145deg, var(--cc-brown), var(--cc-dark));
+            padding: 40px;
+            border-radius: 20px;
             max-width: 500px;
             width: 90%;
-            border: 3px solid var(--cc-yellow);
+            border: 4px solid var(--cc-gold);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            animation: modalAppear 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes modalAppear {
+            from { transform: scale(0.8) translateY(-50px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
         }
         
         .modal-title {
             color: var(--cc-yellow);
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 28px;
+            margin-bottom: 25px;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .modal-title::before {
+            content: '⚠️';
+            font-size: 36px;
+        }
+        
+        .modal p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            text-align: center;
+            color: var(--cc-dark-beige);
         }
         
         .modal-buttons {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
-            margin-top: 20px;
+            margin-top: 30px;
+        }
+        
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(145deg, var(--cc-green), #388e3c);
+            color: white;
+            padding: 18px 28px;
+            border-radius: 10px;
+            z-index: 2000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 400px;
+            border: 2px solid var(--cc-gold);
+            backdrop-filter: blur(10px);
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Прогресс бар */
+        .progress-container {
+            width: 80%;
+            max-width: 400px;
+            margin: 20px auto;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 5px;
+            border: 2px solid var(--cc-light-brown);
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: linear-gradient(90deg, var(--cc-green), var(--cc-yellow), var(--cc-orange));
+            border-radius: 6px;
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+            animation: progressShine 2s infinite;
+        }
+        
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         
         /* Адаптивность */
         @media (max-width: 768px) {
-            .big-cookie {
-                width: 200px;
-                height: 200px;
+            .nav {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
             }
             
-            .cookie-count {
-                font-size: 32px;
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .big-cookie {
+                width: 250px;
+                height: 250px;
             }
             
             .generators-grid,
@@ -417,33 +769,52 @@
                 grid-template-columns: 1fr;
             }
             
-            .nav {
+            .generator {
                 flex-direction: column;
-                gap: 10px;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .generator-cost {
+                margin: 0;
+            }
+            
+            .nav-btn {
+                padding: 12px 20px;
+                font-size: 16px;
             }
         }
         
-        /* Прогресс бар */
-        .progress-bar {
-            height: 5px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px;
-            margin-top: 10px;
-            overflow: hidden;
+        /* Эффект частиц */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            background: var(--cc-yellow);
+            border-radius: 50%;
+            opacity: 0;
         }
         
-        .progress-fill {
+        /* Double click защита */
+        .click-protection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, var(--cc-green), var(--cc-yellow));
-            width: 0%;
-            transition: width 0.3s;
+            background: transparent;
+            z-index: 10000;
+            display: none;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
+    <!-- Защита от двойного клика -->
+    <div class="click-protection" id="clickProtection"></div>
+    
     <!-- Навигация -->
     <div class="nav">
-        <div class="logo">Cookie Clicker</div>
+        <div class="logo">Cookie Clicker Deluxe</div>
         <div class="nav-buttons">
             <button class="nav-btn save" onclick="saveGame()">💾 Сохранить</button>
             <button class="nav-btn" onclick="loadGame()">📂 Загрузить</button>
@@ -456,45 +827,88 @@
         <div class="cookie-display">
             <div class="cookie-count" id="cookieCount">0</div>
             <div class="cps-display" id="cpsDisplay">0 в секунду</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
         </div>
         <div class="other-stats">
             <div>Всего кликов: <span id="totalClicks">0</span></div>
             <div>Всего печенек: <span id="totalCookies">0</span></div>
-            <div>Версия: 1.0.0</div>
+            <div>Генераторы: <span id="totalGenerators">0</span></div>
+            <div>Улучшения: <span id="totalUpgrades">0</span></div>
+            <div>Версия: 2.0.0</div>
         </div>
     </div>
     
     <!-- Главная печенька -->
     <div class="game-area">
-        <div class="big-cookie" id="bigCookie" onclick="clickCookie()">
+        <div class="big-cookie" id="bigCookie" ontouchstart="handleCookieTouch(event)" onclick="handleCookieClick(event)">
             <svg class="cookie-svg" viewBox="0 0 100 100">
-                <!-- Печенька -->
-                <circle cx="50" cy="50" r="45" fill="#d2691e" stroke="#8b4513" stroke-width="2"/>
+                <!-- Основа печеньки -->
+                <defs>
+                    <radialGradient id="cookieGradient" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#d2691e" />
+                        <stop offset="70%" stop-color="#8b4513" />
+                        <stop offset="100%" stop-color="#5d4037" />
+                    </radialGradient>
+                    <filter id="cookieShadow">
+                        <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
+                    </filter>
+                </defs>
+                
+                <circle cx="50" cy="50" r="45" fill="url(#cookieGradient)" filter="url(#cookieShadow)" stroke="#8b4513" stroke-width="2"/>
+                
+                <!-- Текстура печеньки -->
+                <path d="M30,35 Q40,30 50,35 Q60,30 70,35" stroke="#5d4037" stroke-width="1" fill="none"/>
+                <path d="M30,65 Q40,60 50,65 Q60,60 70,65" stroke="#5d4037" stroke-width="1" fill="none"/>
+                
                 <!-- Шоколадные кусочки -->
-                <circle cx="35" cy="40" r="5" fill="#5d4037"/>
-                <circle cx="65" cy="40" r="5" fill="#5d4037"/>
-                <circle cx="45" cy="60" r="5" fill="#5d4037"/>
-                <circle cx="65" cy="65" r="5" fill="#5d4037"/>
-                <circle cx="35" cy="65" r="5" fill="#5d4037"/>
-                <circle cx="50" cy="45" r="5" fill="#5d4037"/>
+                <circle cx="35" cy="40" r="6" fill="#3e2723">
+                    <animate attributeName="r" values="6;7;6" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="65" cy="40" r="5" fill="#3e2723">
+                    <animate attributeName="r" values="5;6;5" dur="1.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="45" cy="60" r="5.5" fill="#3e2723">
+                    <animate attributeName="r" values="5.5;6.5;5.5" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="65" cy="65" r="4.5" fill="#3e2723">
+                    <animate attributeName="r" values="4.5;5.5;4.5" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="35" cy="65" r="6" fill="#3e2723">
+                    <animate attributeName="r" values="6;7;6" dur="3s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="50" cy="45" r="5" fill="#3e2723">
+                    <animate attributeName="r" values="5;6;5" dur="1.8s" repeatCount="indefinite"/>
+                </circle>
+                
                 <!-- Глаза -->
-                <circle cx="40" cy="35" r="3" fill="white"/>
-                <circle cx="60" cy="35" r="3" fill="white"/>
-                <circle cx="40" cy="35" r="1" fill="black"/>
-                <circle cx="60" cy="35" r="1" fill="black"/>
+                <circle cx="40" cy="35" r="3" fill="white">
+                    <animate attributeName="cy" values="35;34;35" dur="1s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="60" cy="35" r="3" fill="white">
+                    <animate attributeName="cy" values="35;34;35" dur="1s" repeatCount="indefinite" begin="0.5s"/>
+                </circle>
+                <circle cx="40" cy="35" r="1.5" fill="black">
+                    <animate attributeName="cy" values="35;34;35" dur="1s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="60" cy="35" r="1.5" fill="black">
+                    <animate attributeName="cy" values="35;34;35" dur="1s" repeatCount="indefinite" begin="0.5s"/>
+                </circle>
+                
                 <!-- Улыбка -->
-                <path d="M 40 50 Q 50 60 60 50" stroke="black" stroke-width="1.5" fill="none"/>
+                <path d="M 40 50 Q 50 60 60 50" stroke="#3e2723" stroke-width="2" fill="none">
+                    <animate attributeName="d" values="M 40 50 Q 50 60 60 50;M 40 51 Q 50 59 60 51;M 40 50 Q 50 60 60 50" dur="2s" repeatCount="indefinite"/>
+                </path>
             </svg>
-            <div class="cookie-click-effect" id="clickEffect">+1</div>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" id="autoProgress"></div>
+            <div class="cookie-shine"></div>
+            <div class="cookie-crumbs" id="cookieCrumbs"></div>
         </div>
     </div>
     
     <!-- Генераторы -->
     <div class="generators">
-        <h2 class="section-title">Генераторы</h2>
+        <h2 class="section-title">Генераторы печенек</h2>
         <div class="generators-grid" id="generatorsList">
             <!-- Генераторы будут добавляться через JavaScript -->
         </div>
@@ -509,30 +923,38 @@
     </div>
     
     <!-- Модальное окно сброса -->
-    <div class="modal" id="resetModal">
-        <div class="modal-content">
-            <h2 class="modal-title">⚠️ Сброс игры</h2>
+    <div class="modal" id="resetModal" onclick="hideResetModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 class="modal-title">Сброс игры</h2>
             <p>Вы уверены, что хотите сбросить всю игру? Это действие нельзя отменить!</p>
             <p>Вы потеряете все печеньки, генераторы и улучшения.</p>
+            <p class="pulse" style="color: var(--cc-yellow); text-align: center; margin: 20px 0;">
+                ⚠️ ВНИМАНИЕ: Все данные будут удалены! ⚠️
+            </p>
             <div class="modal-buttons">
-                <button class="nav-btn reset" onclick="resetGame()">Да, сбросить</button>
-                <button class="nav-btn" onclick="hideResetModal()">Отмена</button>
+                <button class="nav-btn reset" onclick="resetGame()">🗑️ Да, сбросить</button>
+                <button class="nav-btn" onclick="hideResetModal()">✖️ Отмена</button>
             </div>
         </div>
     </div>
     
     <!-- Футер -->
     <div class="footer">
-        <p>Cookie Clicker Clone | Сделано с ❤️ и 🍪</p>
-        <p>Игра автоматически сохраняется каждые 30 секунд</p>
+        <p>🍪 Cookie Clicker Deluxe | Сделано с любовью и печеньками 🍪</p>
+        <p>Игра автоматически сохраняется каждые 30 секунд | Версия 2.0.0</p>
     </div>
+    
+    <!-- Аудио элементы (скрытые) -->
+    <audio id="clickSound" preload="auto"></audio>
+    <audio id="buySound" preload="auto"></audio>
+    <audio id="upgradeSound" preload="auto"></audio>
     
     <script>
         // ========== КОНФИГУРАЦИЯ ИГРЫ ==========
         const GAME_CONFIG = {
-            version: '1.0.0',
+            version: '2.0.0',
             autoSaveInterval: 30000,
-            updateInterval: 1000,
+            updateInterval: 50,
             generators: [
                 {
                     id: 'cursor',
@@ -540,7 +962,7 @@
                     emoji: '👆',
                     baseCost: 15,
                     baseCps: 0.1,
-                    description: 'Автоматически кликает по печеньке'
+                    description: 'Автоматически кликает по печеньке каждую секунду'
                 },
                 {
                     id: 'grandma',
@@ -548,7 +970,7 @@
                     emoji: '👵',
                     baseCost: 100,
                     baseCps: 1,
-                    description: 'Печет печеньки в свободное время'
+                    description: 'Печет печеньки в свободное время с любовью'
                 },
                 {
                     id: 'farm',
@@ -556,7 +978,7 @@
                     emoji: '🚜',
                     baseCost: 1100,
                     baseCps: 8,
-                    description: 'Выращивает пшеницу для печенья'
+                    description: 'Выращивает пшеницу для идеального теста'
                 },
                 {
                     id: 'mine',
@@ -564,7 +986,7 @@
                     emoji: '⛏️',
                     baseCost: 12000,
                     baseCps: 47,
-                    description: 'Добывает сахар и шоколад'
+                    description: 'Добывает сахар и шоколадные чипсы'
                 },
                 {
                     id: 'factory',
@@ -572,7 +994,7 @@
                     emoji: '🏭',
                     baseCost: 130000,
                     baseCps: 260,
-                    description: 'Массовое производство печенья'
+                    description: 'Массовое производство с конвейерной лентой'
                 },
                 {
                     id: 'bank',
@@ -580,7 +1002,7 @@
                     emoji: '🏦',
                     baseCost: 1400000,
                     baseCps: 1400,
-                    description: 'Инвестирует в печенье'
+                    description: 'Инвестирует в печенье и получает проценты'
                 },
                 {
                     id: 'temple',
@@ -588,7 +1010,7 @@
                     emoji: '🛕',
                     baseCost: 20000000,
                     baseCps: 7800,
-                    description: 'Молится за больше печенек'
+                    description: 'Молится богу печенья за увеличение производства'
                 },
                 {
                     id: 'wizard',
@@ -596,14 +1018,14 @@
                     emoji: '🧙',
                     baseCost: 330000000,
                     baseCps: 44000,
-                    description: 'Колдует новые печеньки'
+                    description: 'Колдует новые измерения печенья'
                 }
             ],
             upgrades: [
                 {
                     id: 1,
                     name: 'Усиленный палец',
-                    description: 'Курсоры в 2 раза эффективнее',
+                    description: 'Курсоры становятся в 2 раза эффективнее',
                     cost: 100,
                     type: 'multiplier',
                     target: 'cursor',
@@ -612,8 +1034,8 @@
                 },
                 {
                     id: 2,
-                    name: 'Более крепкое тесто',
-                    description: 'Бабушки пекут в 2 раза быстрее',
+                    name: 'Бабушкины секреты',
+                    description: 'Бабушки пекут в 2 раза быстрее с секретным рецептом',
                     cost: 500,
                     type: 'multiplier',
                     target: 'grandma',
@@ -623,7 +1045,7 @@
                 {
                     id: 3,
                     name: 'Шоколадные чипсы',
-                    description: 'Клик дает в 2 раза больше печенек',
+                    description: 'Каждый клик дает в 2 раза больше печенек',
                     cost: 1000,
                     type: 'clickMultiplier',
                     value: 2
@@ -639,10 +1061,20 @@
                 {
                     id: 5,
                     name: 'Небесные чипсы',
-                    description: '+1% к CPS за каждую 1000 печенек',
+                    description: '+1% к CPS за каждую 1000 печенек в запасе',
                     cost: 10000,
                     type: 'prestigeMultiplier',
                     value: 0.01
+                },
+                {
+                    id: 6,
+                    name: 'Волшебная палочка',
+                    description: 'Волшебники создают на 50% больше печенек',
+                    cost: 20000,
+                    type: 'multiplier',
+                    target: 'wizard',
+                    value: 1.5,
+                    requires: { wizard: 1 }
                 }
             ]
         };
@@ -657,7 +1089,9 @@
             prestigeMultiplier: 1,
             generators: {},
             purchasedUpgrades: [],
-            lastSave: Date.now()
+            lastSave: Date.now(),
+            clickCooldown: false,
+            lastClickTime: 0
         };
         
         // Инициализация генераторов
@@ -671,23 +1105,158 @@
             cpsDisplay: document.getElementById('cpsDisplay'),
             totalClicks: document.getElementById('totalClicks'),
             totalCookies: document.getElementById('totalCookies'),
+            totalGenerators: document.getElementById('totalGenerators'),
+            totalUpgrades: document.getElementById('totalUpgrades'),
             bigCookie: document.getElementById('bigCookie'),
-            clickEffect: document.getElementById('clickEffect'),
             generatorsList: document.getElementById('generatorsList'),
             upgradesList: document.getElementById('upgradesList'),
             resetModal: document.getElementById('resetModal'),
-            autoProgress: document.getElementById('autoProgress')
+            progressBar: document.getElementById('progressBar'),
+            cookieCrumbs: document.getElementById('cookieCrumbs'),
+            clickProtection: document.getElementById('clickProtection')
         };
+        
+        // Аудио контекст
+        let audioContext;
+        let clickBuffer;
+        let buyBuffer;
+        let upgradeBuffer;
+        
+        // ========== АУДИО СИСТЕМА ==========
+        
+        async function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Создаем звуки программно для реалистичности
+                
+                // Звук клика - реальный звук печенья
+                clickBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate);
+                const clickData = clickBuffer.getChannelData(0);
+                for (let i = 0; i < clickBuffer.length; i++) {
+                    const t = i / audioContext.sampleRate;
+                    // Основная частота - мягкий щелчок
+                    let frequency = 800 * Math.exp(-t * 20);
+                    clickData[i] = Math.sin(2 * Math.PI * frequency * t) * Math.exp(-t * 40);
+                    
+                    // Добавляем высокочастотный компонент для хруста
+                    clickData[i] += Math.sin(2 * Math.PI * 2000 * t) * Math.exp(-t * 60) * 0.3;
+                    
+                    // Добавляем низкочастотный компонент для полноты
+                    clickData[i] += Math.sin(2 * Math.PI * 200 * t) * Math.exp(-t * 30) * 0.2;
+                }
+                
+                // Звук покупки - приятный кассовый звук
+                buyBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.3, audioContext.sampleRate);
+                const buyData = buyBuffer.getChannelData(0);
+                for (let i = 0; i < buyBuffer.length; i++) {
+                    const t = i / audioContext.sampleRate;
+                    // Мелодичный звук с падающей частотой
+                    let frequency = 1200 * Math.exp(-t * 3);
+                    buyData[i] = Math.sin(2 * Math.PI * frequency * t) * Math.exp(-t * 10);
+                    
+                    // Добавляем гармоники для богатого звука
+                    buyData[i] += Math.sin(2 * Math.PI * frequency * 2 * t) * Math.exp(-t * 12) * 0.5;
+                    buyData[i] += Math.sin(2 * Math.PI * frequency * 3 * t) * Math.exp(-t * 14) * 0.3;
+                    
+                    // Затухание
+                    buyData[i] *= Math.exp(-t * 8);
+                }
+                
+                // Звук улучшения - магический звук
+                upgradeBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.5, audioContext.sampleRate);
+                const upgradeData = upgradeBuffer.getChannelData(0);
+                for (let i = 0; i < upgradeBuffer.length; i++) {
+                    const t = i / audioContext.sampleRate;
+                    // Плавное нарастание частоты
+                    let frequency = 600 + 800 * (1 - Math.exp(-t * 5));
+                    upgradeData[i] = Math.sin(2 * Math.PI * frequency * t) * Math.exp(-t * 6);
+                    
+                    // Добавляем гармоники и вибрато
+                    upgradeData[i] += Math.sin(2 * Math.PI * frequency * 1.5 * t) * Math.exp(-t * 8) * 0.7;
+                    upgradeData[i] += Math.sin(2 * Math.PI * frequency * 2 * t + Math.sin(t * 10) * 0.5) * Math.exp(-t * 10) * 0.4;
+                    
+                    // Энвелопа
+                    let envelope = Math.min(t * 20, 1) * Math.exp(-t * 6);
+                    upgradeData[i] *= envelope;
+                }
+                
+            } catch (e) {
+                console.log('Аудио не поддерживается:', e);
+            }
+        }
+        
+        function playClickSound() {
+            if (!audioContext || !clickBuffer) return;
+            
+            try {
+                const source = audioContext.createBufferSource();
+                const gainNode = audioContext.createGain();
+                
+                source.buffer = clickBuffer;
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Реалистичная громкость
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                source.start();
+                source.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log('Ошибка воспроизведения звука:', e);
+            }
+        }
+        
+        function playBuySound() {
+            if (!audioContext || !buyBuffer) return;
+            
+            try {
+                const source = audioContext.createBufferSource();
+                const gainNode = audioContext.createGain();
+                
+                source.buffer = buyBuffer;
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                source.start();
+                source.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.log('Ошибка воспроизведения звука:', e);
+            }
+        }
+        
+        function playUpgradeSound() {
+            if (!audioContext || !upgradeBuffer) return;
+            
+            try {
+                const source = audioContext.createBufferSource();
+                const gainNode = audioContext.createGain();
+                
+                source.buffer = upgradeBuffer;
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                source.start();
+                source.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                console.log('Ошибка воспроизведения звука:', e);
+            }
+        }
         
         // ========== ИГРОВАЯ ЛОГИКА ==========
         
-        // Расчет стоимости генератора
         function calculateGeneratorCost(generatorId, owned) {
             const generator = GAME_CONFIG.generators.find(g => g.id === generatorId);
             return Math.floor(generator.baseCost * Math.pow(1.15, owned));
         }
         
-        // Расчет CPS
         function calculateCPS() {
             let totalCPS = 0;
             
@@ -705,7 +1274,7 @@
                     });
                     
                     // Глобальные улучшения
-                    if (gameState.purchasedUpgrades.includes(4)) { // Золотые печеньки
+                    if (gameState.purchasedUpgrades.includes(4)) {
                         multiplier *= 1.1;
                     }
                     
@@ -719,43 +1288,157 @@
             return totalCPS * gameState.cpsMultiplier;
         }
         
-        // Расчет значения клика
         function calculateClickValue() {
             let value = 1 * gameState.clickMultiplier;
             
-            // Улучшение "Шоколадные чипсы"
             if (gameState.purchasedUpgrades.includes(3)) {
                 value *= 2;
             }
             
-            // Престиж множитель
             value *= gameState.prestigeMultiplier;
             
             return value;
         }
         
+        // ========== ВИЗУАЛЬНЫЕ ЭФФЕКТЫ ==========
+        
+        function createCookieCrumbs(x, y, amount) {
+            const crumbsContainer = elements.cookieCrumbs;
+            const crumbCount = Math.min(Math.floor(amount / 10), 15);
+            
+            for (let i = 0; i < crumbCount; i++) {
+                const crumb = document.createElement('div');
+                crumb.className = 'cookie-crumb';
+                
+                // Случайная позиция вокруг клика
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 100;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                crumb.style.cssText = `
+                    left: ${x}px;
+                    top: ${y}px;
+                    --tx: ${tx}px;
+                    --ty: ${ty}px;
+                    background: hsl(${30 + Math.random() * 20}, 60%, ${30 + Math.random() * 20}%);
+                    width: ${5 + Math.random() * 8}px;
+                    height: ${5 + Math.random() * 8}px;
+                    animation: crumbFly 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                `;
+                
+                crumbsContainer.appendChild(crumb);
+                
+                // Удаляем крошку после анимации
+                setTimeout(() => {
+                    if (crumb.parentNode) {
+                        crumb.parentNode.removeChild(crumb);
+                    }
+                }, 800);
+            }
+        }
+        
+        function createClickEffect(value, x, y) {
+            const effect = document.createElement('div');
+            effect.className = 'cookie-click-effect';
+            effect.textContent = `+${formatNumber(value)}`;
+            effect.style.cssText = `
+                left: ${x}px;
+                top: ${y}px;
+                font-size: ${20 + Math.log(value + 1) * 5}px;
+                color: hsl(${40 + Math.random() * 20}, 100%, 60%);
+                animation: clickFloat 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            `;
+            
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
+                }
+            }, 1200);
+        }
+        
+        function createParticleEffect(x, y, color = '#FFD54F', count = 5) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = 3 + Math.random() * 8;
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 50 + Math.random() * 100;
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity;
+                
+                particle.style.cssText = `
+                    left: ${x}px;
+                    top: ${y}px;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${color};
+                    transform: translate(0, 0);
+                    opacity: 0.8;
+                `;
+                
+                document.body.appendChild(particle);
+                
+                // Анимация частицы
+                particle.animate([
+                    {
+                        transform: `translate(0, 0) scale(1)`,
+                        opacity: 0.8
+                    },
+                    {
+                        transform: `translate(${tx}px, ${ty}px) scale(0)`,
+                        opacity: 0
+                    }
+                ], {
+                    duration: 800 + Math.random() * 400,
+                    easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                });
+                
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 1200);
+            }
+        }
+        
         // ========== ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ==========
         
-        // Обновление счетчиков
         function updateUI() {
-            // Обновляем счетчики печенек
+            // Обновляем счетчики
             elements.cookieCount.textContent = formatNumber(gameState.cookies);
             elements.cpsDisplay.textContent = `${formatNumber(calculateCPS())} в секунду`;
             elements.totalClicks.textContent = gameState.totalClicks;
             elements.totalCookies.textContent = formatNumber(gameState.totalCookies);
             
+            // Считаем общее количество генераторов
+            let totalGens = 0;
+            Object.values(gameState.generators).forEach(count => {
+                totalGens += count;
+            });
+            elements.totalGenerators.textContent = totalGens;
+            elements.totalUpgrades.textContent = gameState.purchasedUpgrades.length;
+            
             // Обновляем прогресс бар
             const progress = (Date.now() % 1000) / 1000 * 100;
-            elements.autoProgress.style.width = `${progress}%`;
+            elements.progressBar.style.width = `${progress}%`;
             
-            // Обновляем список генераторов
+            // Анимация счетчика печенек при изменении
+            if (Math.random() < 0.1) {
+                elements.cookieCount.classList.add('animate');
+                setTimeout(() => {
+                    elements.cookieCount.classList.remove('animate');
+                }, 300);
+            }
+            
+            // Обновляем списки
             updateGeneratorsList();
-            
-            // Обновляем список улучшений
             updateUpgradesList();
         }
         
-        // Форматирование чисел
         function formatNumber(num) {
             if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
             if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
@@ -764,7 +1447,6 @@
             return num.toFixed(1);
         }
         
-        // Обновление списка генераторов
         function updateGeneratorsList() {
             elements.generatorsList.innerHTML = '';
             
@@ -772,7 +1454,7 @@
                 const owned = gameState.generators[generator.id];
                 const cost = calculateGeneratorCost(generator.id, owned);
                 const canAfford = gameState.cookies >= cost;
-                const cps = generator.baseCps * owned;
+                const cps = generator.baseCps * owned * gameState.cpsMultiplier;
                 
                 const generatorElement = document.createElement('div');
                 generatorElement.className = `generator ${canAfford ? 'affordable' : ''}`;
@@ -780,17 +1462,21 @@
                     <div class="generator-info">
                         <div class="generator-name">
                             <span class="generator-emoji">${generator.emoji}</span>
-                            ${generator.name} (${owned})
+                            ${generator.name} <span style="color: var(--cc-yellow);">(${owned})</span>
                         </div>
                         <div class="generator-stats">
                             ${generator.description}<br>
-                            Каждый: ${generator.baseCps} CPS | Всего: ${formatNumber(cps)} CPS
+                            <span style="color: var(--cc-green);">
+                                Каждый: ${formatNumber(generator.baseCps)} CPS | 
+                                Всего: ${formatNumber(cps)} CPS
+                            </span>
                         </div>
                     </div>
                     <div class="generator-cost">${formatNumber(cost)}</div>
                     <button class="buy-btn" onclick="buyGenerator('${generator.id}')" 
-                            ${!canAfford ? 'disabled' : ''}>
-                        Купить
+                            ${!canAfford ? 'disabled' : ''}
+                            title="${canAfford ? 'Купить ' + generator.name : 'Недостаточно печенек'}">
+                        Купить ${owned > 0 ? 'ещё' : ''}
                     </button>
                 `;
                 
@@ -798,7 +1484,6 @@
             });
         }
         
-        // Обновление списка улучшений
         function updateUpgradesList() {
             elements.upgradesList.innerHTML = '';
             
@@ -810,15 +1495,27 @@
                 const upgradeElement = document.createElement('div');
                 upgradeElement.className = `upgrade ${isPurchased ? 'purchased' : canAfford && requirementsMet ? 'affordable' : ''}`;
                 
+                let statusText = '';
                 let buttonHTML = '';
-                if (!isPurchased && canAfford && requirementsMet) {
-                    buttonHTML = `<button class="buy-btn" onclick="buyUpgrade(${upgrade.id})">Купить</button>`;
+                
+                if (isPurchased) {
+                    statusText = '<span style="color: var(--cc-green); font-size: 14px;">✓ Куплено</span>';
+                } else if (!requirementsMet) {
+                    statusText = '<span style="color: var(--cc-red); font-size: 14px;">❌ Требования не выполнены</span>';
+                } else if (canAfford) {
+                    buttonHTML = `<button class="buy-btn" onclick="buyUpgrade(${upgrade.id})" 
+                                 style="background: linear-gradient(145deg, var(--cc-gold), var(--cc-orange));">
+                                 🛒 Купить улучшение
+                                 </button>`;
+                } else {
+                    statusText = `<span style="color: var(--cc-red); font-size: 14px;">Нужно ещё печенек: ${formatNumber(upgrade.cost - gameState.cookies)}</span>`;
                 }
                 
                 upgradeElement.innerHTML = `
                     <div class="upgrade-name">${upgrade.name}</div>
                     <div class="upgrade-description">${upgrade.description}</div>
                     <div class="upgrade-cost">🍪 ${formatNumber(upgrade.cost)}</div>
+                    ${statusText}
                     ${buttonHTML}
                 `;
                 
@@ -826,7 +1523,6 @@
             });
         }
         
-        // Проверка требований для улучшения
         function checkUpgradeRequirements(upgrade) {
             if (!upgrade.requires) return true;
             
@@ -841,32 +1537,71 @@
         
         // ========== ДЕЙСТВИЯ ИГРОКА ==========
         
-        // Клик по печеньке
-        function clickCookie(event) {
+        function handleCookieClick(event) {
+            const now = Date.now();
+            
+            // Защита от быстрых кликов (минимум 50ms между кликами)
+            if (gameState.clickCooldown || now - gameState.lastClickTime < 50) {
+                return;
+            }
+            
+            gameState.clickCooldown = true;
+            gameState.lastClickTime = now;
+            
+            // Координаты клика
+            const rect = elements.bigCookie.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // Вычисляем значение клика
             const clickValue = calculateClickValue();
             
-            // Добавляем печеньки
+            // Обновляем состояние
             gameState.cookies += clickValue;
             gameState.totalCookies += clickValue;
             gameState.totalClicks++;
             
-            // Визуальный эффект
-            showClickEffect(clickValue, event);
+            // Визуальные эффекты
+            createClickEffect(clickValue, event.clientX, event.clientY);
+            createCookieCrumbs(x, y, clickValue);
+            createParticleEffect(event.clientX, event.clientY, '#FFD54F', 3);
             
-            // Звуковой эффект
+            // Звук
             playClickSound();
             
             // Обновляем интерфейс
             updateUI();
             
-            // Автосохранение каждые 10 кликов
-            if (gameState.totalClicks % 10 === 0) {
+            // Сбрасываем кулдаун
+            setTimeout(() => {
+                gameState.clickCooldown = false;
+            }, 50);
+            
+            // Автосохранение каждые 25 кликов
+            if (gameState.totalClicks % 25 === 0) {
                 saveGame();
             }
         }
         
-        // Покупка генератора
+        function handleCookieTouch(event) {
+            event.preventDefault();
+            if (event.touches.length > 0) {
+                const touch = event.touches[0];
+                const clickEvent = new MouseEvent('click', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    bubbles: true
+                });
+                elements.bigCookie.dispatchEvent(clickEvent);
+            }
+        }
+        
         function buyGenerator(generatorId) {
+            // Защита от быстрых кликов
+            if (gameState.clickCooldown) return false;
+            
+            gameState.clickCooldown = true;
+            
             const owned = gameState.generators[generatorId];
             const cost = calculateGeneratorCost(generatorId, owned);
             
@@ -874,24 +1609,51 @@
                 gameState.cookies -= cost;
                 gameState.generators[generatorId] = owned + 1;
                 
-                // Звуковой эффект
+                // Эффекты
                 playBuySound();
+                createParticleEffect(
+                    elements.bigCookie.getBoundingClientRect().left + 160,
+                    elements.bigCookie.getBoundingClientRect().top + 160,
+                    '#4CAF50',
+                    8
+                );
                 
                 // Обновляем интерфейс
                 updateUI();
                 saveGame();
                 
+                // Показываем уведомление
+                showNotification(`Куплен ${GAME_CONFIG.generators.find(g => g.id === generatorId).name}!`);
+                
+                setTimeout(() => {
+                    gameState.clickCooldown = false;
+                }, 200);
+                
                 return true;
+            } else {
+                // Эффект "нет денег"
+                elements.cookieCount.style.animation = 'none';
+                setTimeout(() => {
+                    elements.cookieCount.style.animation = 'cookieBounce 0.3s ease';
+                }, 10);
+                
+                setTimeout(() => {
+                    gameState.clickCooldown = false;
+                }, 100);
+                
+                return false;
             }
-            
-            return false;
         }
         
-        // Покупка улучшения
         function buyUpgrade(upgradeId) {
+            if (gameState.clickCooldown) return false;
+            
+            gameState.clickCooldown = true;
+            
             const upgrade = GAME_CONFIG.upgrades.find(u => u.id === upgradeId);
             
             if (!upgrade || gameState.purchasedUpgrades.includes(upgradeId)) {
+                gameState.clickCooldown = false;
                 return false;
             }
             
@@ -899,23 +1661,36 @@
                 gameState.cookies -= upgrade.cost;
                 gameState.purchasedUpgrades.push(upgradeId);
                 
-                // Применяем эффект улучшения
+                // Применяем эффект
                 applyUpgradeEffect(upgrade);
                 
-                // Звуковой эффект
+                // Эффекты
                 playUpgradeSound();
+                createParticleEffect(
+                    window.innerWidth / 2,
+                    window.innerHeight / 2,
+                    '#9C27B0',
+                    15
+                );
                 
                 // Обновляем интерфейс
                 updateUI();
                 saveGame();
                 
+                // Показываем уведомление
+                showNotification(`Приобретено улучшение: ${upgrade.name}!`);
+                
+                setTimeout(() => {
+                    gameState.clickCooldown = false;
+                }, 300);
+                
                 return true;
             }
             
+            gameState.clickCooldown = false;
             return false;
         }
         
-        // Применение эффекта улучшения
         function applyUpgradeEffect(upgrade) {
             switch (upgrade.type) {
                 case 'multiplier':
@@ -933,162 +1708,58 @@
             }
         }
         
-        // ========== ВИЗУАЛЬНЫЕ ЭФФЕКТЫ ==========
-        
-        // Эффект клика
-        function showClickEffect(value, event) {
-            const effect = elements.clickEffect.cloneNode(true);
-            effect.textContent = `+${formatNumber(value)}`;
-            effect.style.opacity = '1';
-            
-            if (event) {
-                const rect = elements.bigCookie.getBoundingClientRect();
-                const x = event.clientX - rect.left;
-                const y = event.clientY - rect.top;
-                effect.style.left = `${x}px`;
-                effect.style.top = `${y}px`;
-            } else {
-                effect.style.left = '50%';
-                effect.style.top = '50%';
-            }
-            
-            elements.bigCookie.appendChild(effect);
-            
-            // Анимация
-            effect.style.animation = 'clickEffect 1s forwards';
-            
-            // Удаляем после анимации
-            setTimeout(() => {
-                if (effect.parentNode) {
-                    effect.parentNode.removeChild(effect);
-                }
-            }, 1000);
-        }
-        
-        // ========== ЗВУКОВЫЕ ЭФФЕКТЫ ==========
-        
-        function playClickSound() {
-            // Простой звук клика через Web Audio API
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 800;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.1);
-            } catch (e) {
-                console.log('Audio not supported');
-            }
-        }
-        
-        function playBuySound() {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 1200;
-                oscillator.type = 'triangle';
-                
-                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
-            } catch (e) {
-                console.log('Audio not supported');
-            }
-        }
-        
-        function playUpgradeSound() {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(2000, audioContext.currentTime + 0.5);
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
-            } catch (e) {
-                console.log('Audio not supported');
-            }
-        }
-        
         // ========== СОХРАНЕНИЕ И ЗАГРУЗКА ==========
         
-        // Сохранение игры
         function saveGame() {
             try {
                 gameState.lastSave = Date.now();
                 const saveData = {
                     ...gameState,
                     version: GAME_CONFIG.version,
-                    saveTime: new Date().toISOString()
+                    saveTime: new Date().toISOString(),
+                    totalPlayTime: (gameState.totalPlayTime || 0) + (Date.now() - gameState.lastSave)
                 };
-                localStorage.setItem('cookieClickerSave', JSON.stringify(saveData));
+                localStorage.setItem('cookieClickerSaveV2', JSON.stringify(saveData));
                 console.log('Игра сохранена');
                 
-                // Показываем уведомление
-                showNotification('Игра сохранена!');
+                showNotification('Игра сохранена! 🎮');
                 
                 return true;
             } catch (e) {
                 console.error('Ошибка сохранения:', e);
+                showNotification('Ошибка сохранения! 😢');
                 return false;
             }
         }
         
-        // Загрузка игры
         function loadGame() {
             try {
-                const saveData = localStorage.getItem('cookieClickerSave');
+                const saveData = localStorage.getItem('cookieClickerSaveV2');
                 if (saveData) {
                     const parsed = JSON.parse(saveData);
                     
-                    // Проверяем версию
                     if (parsed.version === GAME_CONFIG.version) {
-                        gameState = parsed;
-                        console.log('Игра загружена');
+                        Object.assign(gameState, parsed);
+                        gameState.lastSave = Date.now();
                         
-                        // Показываем уведомление
-                        showNotification('Игра загружена!');
+                        console.log('Игра загружена');
+                        showNotification('Игра загружена! 📂');
                         
                         updateUI();
                         return true;
                     } else {
                         console.log('Версия сохранения не совпадает');
-                        showNotification('Версия сохранения не совпадает, создано новое сохранение');
+                        showNotification('Создано новое сохранение! 🆕');
                     }
                 }
             } catch (e) {
                 console.error('Ошибка загрузки:', e);
+                showNotification('Ошибка загрузки! 😢');
             }
             
             return false;
         }
         
-        // Автосохранение
         function setupAutoSave() {
             setInterval(() => {
                 if (gameState.cookies > 0 || gameState.totalClicks > 0) {
@@ -1099,22 +1770,43 @@
         
         // ========== ИГРОВОЙ ЦИКЛ ==========
         
-        // Автоматический доход
         function setupGameLoop() {
-            setInterval(() => {
+            // Плавное обновление CPS (60 FPS)
+            let lastUpdate = Date.now();
+            
+            function updateGame() {
+                const now = Date.now();
+                const delta = (now - lastUpdate) / 1000;
+                lastUpdate = now;
+                
+                // Добавляем печеньки от генераторов
                 const cps = calculateCPS();
                 if (cps > 0) {
-                    gameState.cookies += cps / 10; // 10 раз в секунду для плавности
-                    gameState.totalCookies += cps / 10;
+                    const cookiesToAdd = cps * delta;
+                    gameState.cookies += cookiesToAdd;
+                    gameState.totalCookies += cookiesToAdd;
+                    
+                    // Периодическое обновление UI
+                    if (Math.random() < 0.1) {
+                        updateUI();
+                    }
+                }
+                
+                // Плавное обновление счетчика каждые 100ms
+                if (now % 100 < 16) {
                     updateUI();
                 }
-            }, 100);
+                
+                requestAnimationFrame(updateGame);
+            }
             
-            // Быстрый интервал для плавного обновления
-            setInterval(updateUI, 50);
+            requestAnimationFrame(updateGame);
+            
+            // Автосохранение
+            setupAutoSave();
         }
         
-        // ========== МОДАЛЬНЫЕ ОКНА ==========
+        // ========== МОДАЛЬНЫЕ ОКНА И УВЕДОМЛЕНИЯ ==========
         
         function showResetModal() {
             elements.resetModal.style.display = 'flex';
@@ -1125,7 +1817,7 @@
         }
         
         function resetGame() {
-            // Сбрасываем состояние игры
+            // Сбрасываем состояние
             gameState = {
                 cookies: 0,
                 totalCookies: 0,
@@ -1135,7 +1827,9 @@
                 prestigeMultiplier: 1,
                 generators: {},
                 purchasedUpgrades: [],
-                lastSave: Date.now()
+                lastSave: Date.now(),
+                clickCooldown: false,
+                lastClickTime: 0
             };
             
             // Инициализация генераторов
@@ -1144,54 +1838,29 @@
             });
             
             // Очищаем сохранение
-            localStorage.removeItem('cookieClickerSave');
+            localStorage.removeItem('cookieClickerSaveV2');
             
             // Обновляем интерфейс
             updateUI();
             hideResetModal();
             
             // Показываем уведомление
-            showNotification('Игра сброшена!');
+            showNotification('Игра сброшена! Начните заново! 🎯');
+            
+            // Анимация сброса
+            createParticleEffect(window.innerWidth / 2, window.innerHeight / 2, '#FF5252', 20);
         }
         
-        // ========== УВЕДОМЛЕНИЯ ==========
-        
         function showNotification(message) {
-            // Создаем элемент уведомления
             const notification = document.createElement('div');
+            notification.className = 'notification';
             notification.textContent = message;
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #4caf50;
-                color: white;
-                padding: 15px 25px;
-                border-radius: 5px;
-                z-index: 1000;
-                animation: slideIn 0.3s ease-out;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            `;
-            
-            // Добавляем стили анимации
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
             
             document.body.appendChild(notification);
             
-            // Удаляем через 3 секунды
+            // Анимация исчезновения
             setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease-out forwards';
+                notification.style.animation = 'slideOutRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
                 setTimeout(() => {
                     if (notification.parentNode) {
                         notification.parentNode.removeChild(notification);
@@ -1202,83 +1871,80 @@
         
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         
-        function initGame() {
+        async function initGame() {
+            // Инициализируем аудио
+            await initAudio();
+            
             // Загружаем сохранение
             loadGame();
             
             // Настраиваем игровой цикл
             setupGameLoop();
             
-            // Настраиваем автосохранение
-            setupAutoSave();
-            
             // Обновляем интерфейс
             updateUI();
             
             // Добавляем обработчики событий
-            elements.bigCookie.addEventListener('click', clickCookie);
+            elements.bigCookie.addEventListener('click', handleCookieClick);
             
-            // Для мобильных устройств: обработка касаний
-            elements.bigCookie.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                clickCookie(e.touches[0]);
-            });
+            // Для мобильных устройств
+            elements.bigCookie.addEventListener('touchstart', handleCookieTouch, { passive: false });
             
-            // Добавляем контекстное меню для сохранения
-            elements.bigCookie.addEventListener('contextmenu', (e) => {
+            // Защита от двойного клика
+            document.addEventListener('dblclick', (e) => {
                 e.preventDefault();
-                saveGame();
-                return false;
+                e.stopPropagation();
             });
             
             // Сохраняем при закрытии вкладки
-            window.addEventListener('beforeunload', () => {
+            window.addEventListener('beforeunload', (e) => {
                 saveGame();
+                e.preventDefault();
+                e.returnValue = '';
             });
             
             // Показываем приветствие
             setTimeout(() => {
-                showNotification('Добро пожаловать в Cookie Clicker! Кликайте по печеньке 🍪');
+                showNotification('Добро пожаловать в Cookie Clicker Deluxe! 🍪');
+                showNotification('Кликайте по печеньке, покупайте генераторы и улучшения! 🎮');
             }, 1000);
+            
+            console.log('Cookie Clicker Deluxe загружен! Версия:', GAME_CONFIG.version);
         }
         
-        // ========== ЧИТЫ ==========
-        // (Только для разработки - удалите в продакшене)
+        // ========== ГОРЯЧИЕ КЛАВИШИ ==========
         
-        function addCheatCookies(amount) {
-            gameState.cookies += amount;
-            gameState.totalCookies += amount;
-            updateUI();
-            showNotification(`Добавлено ${formatNumber(amount)} печенек!`);
-        }
-        
-        // Горячие клавиши для разработки
         document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.shiftKey) {
-                switch(e.key) {
-                    case 'C':
-                        addCheatCookies(1000);
-                        break;
-                    case 'R':
-                        resetGame();
-                        break;
-                    case 'S':
-                        saveGame();
-                        break;
-                    case 'L':
-                        loadGame();
-                        break;
-                }
+            // Alt + C - добавить печеньки (для разработки)
+            if (e.altKey && e.key === 'c') {
+                gameState.cookies += 1000;
+                updateUI();
+                showNotification('Добавлено 1000 печенек! 🎁');
+            }
+            
+            // Alt + R - сброс игры
+            if (e.altKey && e.key === 'r') {
+                showResetModal();
+            }
+            
+            // Alt + S - сохранить
+            if (e.altKey && e.key === 's') {
+                saveGame();
+            }
+            
+            // Alt + L - загрузить
+            if (e.altKey && e.key === 'l') {
+                loadGame();
             }
         });
         
         // ========== ЗАПУСК ИГРЫ ==========
         
-        // Запускаем игру при загрузке страницы
         window.addEventListener('DOMContentLoaded', initGame);
         
-        // Экспортируем функции в глобальную область видимости
-        window.clickCookie = clickCookie;
+        // Экспорт функций
+        window.handleCookieClick = handleCookieClick;
+        window.handleCookieTouch = handleCookieTouch;
         window.buyGenerator = buyGenerator;
         window.buyUpgrade = buyUpgrade;
         window.saveGame = saveGame;
@@ -1286,10 +1952,6 @@
         window.showResetModal = showResetModal;
         window.hideResetModal = hideResetModal;
         window.resetGame = resetGame;
-        
-        // Для отладки
-        console.log('Cookie Clicker загружен!');
-        console.log('Горячие клавиши разработчика: Ctrl+Shift+C - добавить печеньки, Ctrl+Shift+S - сохранить, Ctrl+Shift+L - загрузить');
     </script>
 </body>
 </html>
