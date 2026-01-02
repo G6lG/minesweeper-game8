@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>❄️ Динамический Сапёр | Зимняя версия</title>
+    <title> Лох | Зимняя версия</title>
     <style>
         /* ОСНОВНЫЕ СТИЛИ */
         * {
@@ -936,6 +936,73 @@
             to { transform: translateX(0) translateY(0); opacity: 1; }
         }
 
+        /* СТИЛИ ДЛЯ ЭСКЕЙП-СИСТЕМЫ */
+        .preset-btn {
+            padding: 10px 15px;
+            background: linear-gradient(135deg, rgba(76, 201, 240, 0.2), rgba(67, 97, 238, 0.2));
+            border: 1px solid rgba(76, 201, 240, 0.4);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 600;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .preset-btn:hover {
+            background: linear-gradient(135deg, rgba(76, 201, 240, 0.3), rgba(67, 97, 238, 0.3));
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.3);
+        }
+
+        /* Анимация для уведомлений о сохранении */
+        @keyframes savePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .saving {
+            animation: savePulse 0.5s ease;
+        }
+
+        /* Модальное окно для экспорта */
+        .export-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 25, 45, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(76, 201, 240, 0.5);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            max-width: 500px;
+            width: 90%;
+            backdrop-filter: blur(20px);
+        }
+
+        .export-content {
+            background: rgba(30, 40, 60, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .export-content pre {
+            color: #4cc9f0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
         /* АДАПТИВНОСТЬ */
         @media (max-width: 1200px) {
             .main-game-area {
@@ -1144,6 +1211,65 @@
                                 <span class="audio-status" id="music-status">🎶 Музыка: Технологичный саундтрек</span>
                             </div>
                         </div>
+
+                        <!-- ЭСКЕЙП-СИСТЕМА С НАСТРОЙКАМИ -->
+                        <div class="setting-group">
+                            <div class="settings-title">💾 УПРАВЛЕНИЕ НАСТРОЙКАМИ</div>
+                            
+                            <div class="settings-presets">
+                                <div class="setting-group">
+                                    <label class="setting-label">Быстрые пресеты:</label>
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                                        <button class="audio-btn preset-btn" data-preset="beginner">🎮 Начинающий</button>
+                                        <button class="audio-btn preset-btn" data-preset="medium">⚡ Средний</button>
+                                        <button class="audio-btn preset-btn" data-preset="expert">🔥 Эксперт</button>
+                                        <button class="audio-btn preset-btn" data-preset="hardcore">💀 Хардкор</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="profile-controls" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                <div class="setting-group">
+                                    <label class="setting-label">Имя профиля:</label>
+                                    <input type="text" id="profile-name" placeholder="Введите имя" 
+                                           style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.1); 
+                                                  color: white; border: 1px solid rgba(76, 201, 240, 0.3); margin: 10px 0; font-size: 1rem;">
+                                </div>
+                                
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px;">
+                                    <button class="btn btn-secondary" id="save-profile">
+                                        <span>💾</span> СОХРАНИТЬ
+                                    </button>
+                                    <button class="btn btn-secondary" id="load-profile">
+                                        <span>📂</span> ЗАГРУЗИТЬ
+                                    </button>
+                                    <button class="btn btn-warning" id="export-settings">
+                                        <span>📤</span> ЭКСПОРТ
+                                    </button>
+                                    <button class="btn btn-warning" id="import-settings">
+                                        <span>📥</span> ИМПОРТ
+                                    </button>
+                                    <button class="btn btn-secondary" id="reset-settings" style="grid-column: span 2;">
+                                        <span>🔄</span> СБРОС НАСТРОЕК
+                                    </button>
+                                </div>
+                                
+                                <div class="audio-status" id="profile-status" style="margin-top: 15px;">
+                                    💾 Готов к сохранению...
+                                </div>
+                                
+                                <!-- Скрытый элемент для импорта -->
+                                <input type="file" id="import-file" accept=".json" style="display: none;">
+                            </div>
+                            
+                            <!-- Отображение текущих настроек -->
+                            <div class="current-settings" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                                <div class="settings-title">📊 ТЕКУЩИЕ НАСТРОЙКИ</div>
+                                <div id="current-settings-display" style="color: #a5b4cb; font-size: 0.85rem; margin-top: 10px; line-height: 1.5;">
+                                    Размер: 10×10 | Мины: 15 | Бомбы: 3 | Музыка: ВКЛ
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1191,6 +1317,10 @@
                                 <div class="instruction-item">
                                     <div class="instruction-key">M</div>
                                     <div>Вкл/выкл музыку</div>
+                                </div>
+                                <div class="instruction-item">
+                                    <div class="instruction-key">Escape</div>
+                                    <div>Быстрое сохранение</div>
                                 </div>
                             </div>
                         </div>
@@ -1246,11 +1376,484 @@
                 musicAnalyser: null,
                 musicDataArray: null,
                 musicGainNode: null,
-                sfxGainNode: null
+                sfxGainNode: null,
+                musicOscillators: null,
+                musicGains: null
             },
             
             // DOM элементы
             elements: {},
+            
+            // ЭСКЕЙП-СИСТЕМА С НАСТРОЙКАМИ
+            escapeSystem: {
+                // Пресеты настроек
+                presets: {
+                    beginner: {
+                        rows: 8, cols: 8,
+                        mines: 10,
+                        dynamicBombs: 1,
+                        smartGeneration: true,
+                        soundEnabled: true,
+                        musicEnabled: true,
+                        musicVolume: 0.4,
+                        sfxVolume: 0.5,
+                        bombInterval: 15000
+                    },
+                    medium: {
+                        rows: 10, cols: 10,
+                        mines: 15,
+                        dynamicBombs: 2,
+                        smartGeneration: true,
+                        soundEnabled: true,
+                        musicEnabled: true,
+                        musicVolume: 0.5,
+                        sfxVolume: 0.6,
+                        bombInterval: 12000
+                    },
+                    expert: {
+                        rows: 12, cols: 12,
+                        mines: 25,
+                        dynamicBombs: 3,
+                        smartGeneration: false,
+                        soundEnabled: true,
+                        musicEnabled: true,
+                        musicVolume: 0.6,
+                        sfxVolume: 0.7,
+                        bombInterval: 10000
+                    },
+                    hardcore: {
+                        rows: 15, cols: 15,
+                        mines: 40,
+                        dynamicBombs: 5,
+                        smartGeneration: false,
+                        soundEnabled: true,
+                        musicEnabled: false,
+                        musicVolume: 0,
+                        sfxVolume: 0.8,
+                        bombInterval: 8000
+                    }
+                },
+
+                // Инициализация эскейп-системы
+                init() {
+                    this.bindEscapeEvents();
+                    this.loadLastProfile();
+                    this.updateCurrentSettings();
+                },
+
+                // Загрузка последнего профиля
+                loadLastProfile() {
+                    try {
+                        const lastProfile = localStorage.getItem('minesweeper_lastProfile');
+                        if (lastProfile) {
+                            this.loadProfile(lastProfile);
+                            Game.showMessage(`📂 Загружен профиль: ${lastProfile}`);
+                        }
+                    } catch (e) {
+                        console.log('Не удалось загрузить последний профиль:', e);
+                    }
+                },
+
+                // Привязка событий
+                bindEscapeEvents() {
+                    // Пресеты
+                    document.querySelectorAll('.preset-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const preset = e.target.dataset.preset;
+                            this.applyPreset(preset);
+                            Game.playSound('click');
+                        });
+                    });
+
+                    // Сохранение профиля
+                    document.getElementById('save-profile').addEventListener('click', () => {
+                        this.saveProfile();
+                        Game.playSound('click');
+                    });
+
+                    // Загрузка профиля
+                    document.getElementById('load-profile').addEventListener('click', () => {
+                        this.loadProfile();
+                        Game.playSound('click');
+                    });
+
+                    // Экспорт настроек
+                    document.getElementById('export-settings').addEventListener('click', () => {
+                        this.exportSettings();
+                        Game.playSound('click');
+                    });
+
+                    // Импорт настроек
+                    document.getElementById('import-settings').addEventListener('click', () => {
+                        document.getElementById('import-file').click();
+                        Game.playSound('click');
+                    });
+
+                    document.getElementById('import-file').addEventListener('change', (e) => {
+                        this.importSettings(e.target.files[0]);
+                    });
+
+                    // Сброс настроек
+                    document.getElementById('reset-settings').addEventListener('click', () => {
+                        if (confirm('Сбросить все настройки к значениям по умолчанию?')) {
+                            this.resetToDefaults();
+                            Game.playSound('click');
+                        }
+                    });
+
+                    // Горячие клавиши для эскейпа
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            e.preventDefault();
+                            this.quickSave();
+                        } else if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+                            e.preventDefault();
+                            this.saveProfile();
+                        } else if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+                            e.preventDefault();
+                            this.loadProfile();
+                        }
+                    });
+                },
+
+                // Применение пресета
+                applyPreset(presetName) {
+                    const preset = this.presets[presetName];
+                    if (!preset) return;
+
+                    Object.keys(preset).forEach(key => {
+                        if (key in Game.config) {
+                            Game.config[key] = preset[key];
+                        }
+                    });
+
+                    // Обновление UI
+                    this.updateSettingsUI();
+                    Game.updateUI();
+                    
+                    // Обновление громкости
+                    if (Game.state.musicGainNode) {
+                        Game.state.musicGainNode.gain.value = Game.config.musicVolume;
+                    }
+                    if (Game.state.sfxGainNode) {
+                        Game.state.sfxGainNode.gain.value = Game.config.sfxVolume;
+                    }
+
+                    Game.showMessage(`🎮 Применен пресет: ${presetName.toUpperCase()}`);
+                    this.updateCurrentSettings();
+                },
+
+                // Обновление отображения текущих настроек
+                updateCurrentSettings() {
+                    const display = document.getElementById('current-settings-display');
+                    if (!display) return;
+
+                    const settings = Game.config;
+                    const musicStatus = settings.musicEnabled ? 'ВКЛ' : 'ВЫКЛ';
+                    const soundStatus = settings.soundEnabled ? 'ВКЛ' : 'ВЫКЛ';
+                    
+                    display.innerHTML = `
+                        <div>📐 Размер: ${settings.rows}×${settings.cols}</div>
+                        <div>💣 Мины: ${settings.mines} | Динамические бомбы: ${settings.dynamicBombs}</div>
+                        <div>🎵 Музыка: ${musicStatus} (${Math.round(settings.musicVolume * 100)}%)</div>
+                        <div>🔊 Звуки: ${soundStatus} (${Math.round(settings.sfxVolume * 100)}%)</div>
+                        <div>⚡ Интервал бомб: ${settings.bombInterval / 1000} сек</div>
+                    `;
+                },
+
+                // Сохранение профиля
+                saveProfile() {
+                    const profileNameInput = document.getElementById('profile-name');
+                    let profileName = profileNameInput.value.trim();
+                    
+                    if (!profileName) {
+                        profileName = `profile_${Date.now()}`;
+                        profileNameInput.value = profileName;
+                    }
+
+                    const profile = {
+                        config: { ...Game.config },
+                        version: '1.0',
+                        timestamp: new Date().toISOString(),
+                        gameStats: {
+                            totalGames: 0,
+                            wins: 0,
+                            bestTime: 999
+                        }
+                    };
+
+                    try {
+                        localStorage.setItem(`minesweeper_profile_${profileName}`, JSON.stringify(profile));
+                        localStorage.setItem('minesweeper_lastProfile', profileName);
+                        
+                        document.getElementById('profile-status').textContent = 
+                            `💾 Профиль "${profileName}" сохранен (${new Date().toLocaleTimeString()})`;
+                        
+                        document.getElementById('save-profile').classList.add('saving');
+                        setTimeout(() => {
+                            document.getElementById('save-profile').classList.remove('saving');
+                        }, 500);
+                        
+                        Game.showMessage(`💾 Профиль "${profileName}" успешно сохранен!`);
+                        this.updateCurrentSettings();
+                    } catch (e) {
+                        Game.showMessage('❌ Ошибка сохранения профиля');
+                        console.error('Save error:', e);
+                    }
+                },
+
+                // Загрузка профиля
+                loadProfile(profileName = null) {
+                    if (!profileName) {
+                        const profileNameInput = document.getElementById('profile-name');
+                        profileName = profileNameInput.value.trim();
+                        
+                        if (!profileName) {
+                            Game.showMessage('❌ Введите имя профиля для загрузки');
+                            return;
+                        }
+                    }
+
+                    try {
+                        const saved = localStorage.getItem(`minesweeper_profile_${profileName}`);
+                        if (!saved) {
+                            Game.showMessage(`❌ Профиль "${profileName}" не найден`);
+                            return;
+                        }
+
+                        const profile = JSON.parse(saved);
+                        
+                        // Загружаем конфигурацию
+                        Object.keys(profile.config).forEach(key => {
+                            if (key in Game.config) {
+                                Game.config[key] = profile.config[key];
+                            }
+                        });
+
+                        // Обновление UI
+                        this.updateSettingsUI();
+                        Game.updateUI();
+                        
+                        // Обновление аудио
+                        if (Game.state.musicGainNode) {
+                            Game.state.musicGainNode.gain.value = Game.config.musicVolume;
+                        }
+                        if (Game.state.sfxGainNode) {
+                            Game.state.sfxGainNode.gain.value = Game.config.sfxVolume;
+                        }
+
+                        // Обновление статуса
+                        document.getElementById('profile-name').value = profileName;
+                        document.getElementById('profile-status').textContent = 
+                            `📂 Загружен профиль "${profileName}"`;
+                        
+                        Game.showMessage(`📂 Профиль "${profileName}" загружен успешно!`);
+                        this.updateCurrentSettings();
+                        
+                    } catch (e) {
+                        Game.showMessage('❌ Ошибка загрузки профиля');
+                        console.error('Load error:', e);
+                    }
+                },
+
+                // Экспорт настроек
+                exportSettings() {
+                    const exportData = {
+                        config: Game.config,
+                        version: '1.0',
+                        exportDate: new Date().toISOString(),
+                        game: 'Winter Minesweeper'
+                    };
+
+                    const dataStr = JSON.stringify(exportData, null, 2);
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    
+                    // Создаем модальное окно для предпросмотра
+                    this.showExportModal(dataStr);
+                    
+                    // Также предлагаем скачать файл
+                    const url = URL.createObjectURL(dataBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `minesweeper_settings_${Date.now()}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    Game.showMessage('📤 Настройки экспортированы в файл');
+                },
+
+                // Показать модальное окно экспорта
+                showExportModal(dataStr) {
+                    // Удаляем старое модальное окно если есть
+                    const oldModal = document.querySelector('.export-modal');
+                    if (oldModal) oldModal.remove();
+
+                    const modal = document.createElement('div');
+                    modal.className = 'export-modal';
+                    modal.innerHTML = `
+                        <div class="settings-title">📤 ЭКСПОРТ НАСТРОЕК</div>
+                        <p style="color: #a5b4cb; margin: 15px 0;">Настройки успешно экспортированы!</p>
+                        <div class="export-content">
+                            <pre>${dataStr.substring(0, 500)}${dataStr.length > 500 ? '...' : ''}</pre>
+                        </div>
+                        <p style="color: #a5b4cb; margin-top: 10px; font-size: 0.9rem;">
+                            Файл скачан автоматически. Вы также можете скопировать код выше.
+                        </p>
+                        <button class="btn btn-success" id="copy-export">📋 Копировать код</button>
+                        <button class="btn btn-secondary" id="close-export" style="margin-top: 10px;">✕ Закрыть</button>
+                    `;
+
+                    document.body.appendChild(modal);
+
+                    // Копирование в буфер обмена
+                    document.getElementById('copy-export').addEventListener('click', () => {
+                        navigator.clipboard.writeText(dataStr).then(() => {
+                            Game.showMessage('📋 Код настроек скопирован в буфер обмена!');
+                            modal.querySelector('#copy-export').textContent = '✅ Скопировано!';
+                        });
+                    });
+
+                    // Закрытие модального окна
+                    document.getElementById('close-export').addEventListener('click', () => {
+                        modal.remove();
+                    });
+
+                    // Закрытие по клику вне окна
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            modal.remove();
+                        }
+                    });
+                },
+
+                // Импорт настроек
+                importSettings(file) {
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const imported = JSON.parse(e.target.result);
+                            
+                            if (!imported.config || !imported.version) {
+                                throw new Error('Неверный формат файла настроек');
+                            }
+
+                            // Загружаем конфигурацию
+                            Object.keys(imported.config).forEach(key => {
+                                if (key in Game.config) {
+                                    Game.config[key] = imported.config[key];
+                                }
+                            });
+
+                            // Обновление UI
+                            this.updateSettingsUI();
+                            Game.updateUI();
+                            
+                            // Обновление аудио
+                            if (Game.state.musicGainNode) {
+                                Game.state.musicGainNode.gain.value = Game.config.musicVolume;
+                            }
+                            if (Game.state.sfxGainNode) {
+                                Game.state.sfxGainNode.gain.value = Game.config.sfxVolume;
+                            }
+
+                            // Предлагаем сохранить как профиль
+                            const profileName = file.name.replace('.json', '') || `imported_${Date.now()}`;
+                            document.getElementById('profile-name').value = profileName;
+                            
+                            Game.showMessage(`📥 Настройки импортированы из "${file.name}"`);
+                            this.updateCurrentSettings();
+                            
+                            if (confirm('Сохранить импортированные настройки как профиль?')) {
+                                this.saveProfile();
+                            }
+
+                        } catch (e) {
+                            Game.showMessage('❌ Ошибка импорта: неверный формат файла');
+                            console.error('Import error:', e);
+                        }
+                    };
+                    reader.readAsText(file);
+                },
+
+                // Быстрое сохранение (по Escape)
+                quickSave() {
+                    const profileName = `quicksave_${new Date().toLocaleDateString()}`;
+                    document.getElementById('profile-name').value = profileName;
+                    this.saveProfile();
+                    Game.showMessage('💾 Быстрое сохранение выполнено!');
+                },
+
+                // Сброс к настройкам по умолчанию
+                resetToDefaults() {
+                    Game.config = {
+                        rows: 10,
+                        cols: 10,
+                        mines: 15,
+                        dynamicBombs: 3,
+                        bombInterval: 12000,
+                        smartGeneration: true,
+                        soundEnabled: true,
+                        musicEnabled: true,
+                        snowflakesCount: 80,
+                        musicVolume: 0.5,
+                        sfxVolume: 0.7
+                    };
+
+                    // Обновление UI
+                    this.updateSettingsUI();
+                    Game.updateUI();
+                    
+                    // Обновление аудио
+                    if (Game.state.musicGainNode) {
+                        Game.state.musicGainNode.gain.value = Game.config.musicVolume;
+                    }
+                    if (Game.state.sfxGainNode) {
+                        Game.state.sfxGainNode.gain.value = Game.config.sfxVolume;
+                    }
+
+                    document.getElementById('profile-name').value = 'default';
+                    document.getElementById('profile-status').textContent = '⚙️ Настройки сброшены к значениям по умолчанию';
+                    
+                    Game.showMessage('🔄 Настройки сброшены к значениям по умолчанию');
+                    this.updateCurrentSettings();
+                },
+
+                // Обновление UI настроек
+                updateSettingsUI() {
+                    const config = Game.config;
+                    
+                    // Размер поля
+                    document.getElementById('board-size').value = config.rows;
+                    document.getElementById('size-value').textContent = `${config.rows}×${config.cols}`;
+                    
+                    // Количество мин
+                    document.getElementById('mine-count-slider').value = config.mines;
+                    document.getElementById('mine-value').textContent = config.mines;
+                    
+                    // Динамические бомбы
+                    document.getElementById('dynamic-bomb-count').value = config.dynamicBombs;
+                    document.getElementById('bomb-value').textContent = config.dynamicBombs;
+                    
+                    // Умная генерация
+                    document.getElementById('smart-gen').checked = config.smartGeneration;
+                    
+                    // Звуки
+                    document.getElementById('sound-toggle').checked = config.soundEnabled;
+                    document.getElementById('music-toggle').checked = config.musicEnabled;
+                    
+                    // Громкость
+                    document.getElementById('music-volume').value = Math.round(config.musicVolume * 100);
+                    document.getElementById('music-volume-value').textContent = Math.round(config.musicVolume * 100);
+                    document.getElementById('sfx-volume').value = Math.round(config.sfxVolume * 100);
+                    document.getElementById('sfx-volume-value').textContent = Math.round(config.sfxVolume * 100);
+                    
+                    this.updateCurrentSettings();
+                }
+            },
             
             // Инициализация
             init() {
@@ -1262,6 +1865,9 @@
                 this.initEventListeners();
                 this.initSettings();
                 this.showStartScreen();
+                
+                // Инициализация эскейп-системы
+                this.escapeSystem.init();
                 
                 console.log('✅ Игра готова!');
             },
@@ -1782,6 +2388,24 @@
                     btn.addEventListener('mouseenter', () => {
                         this.playSound('hover');
                     });
+                });
+
+                // Обновление текущих настроек при изменении
+                const updateCallbacks = [
+                    'board-size', 'mine-count-slider', 'dynamic-bomb-count',
+                    'smart-gen', 'sound-toggle', 'music-toggle',
+                    'music-volume', 'sfx-volume'
+                ];
+
+                updateCallbacks.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('change', () => {
+                            setTimeout(() => {
+                                this.escapeSystem.updateCurrentSettings();
+                            }, 100);
+                        });
+                    }
                 });
             },
             
@@ -2311,7 +2935,7 @@
                 this.state.timerInterval = setInterval(() => {
                     this.state.elapsedSeconds = Math.floor((Date.now() - this.state.startTime) / 1000);
                     
-                    // Обновляем оба таймера
+                    // Обновляем оба таймеры
                     const timeStr = this.state.elapsedSeconds.toString().padStart(3, '0');
                     this.elements.timer.textContent = timeStr;
                     this.elements.mainTimer.textContent = timeStr;
