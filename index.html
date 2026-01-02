@@ -49,27 +49,21 @@
             border-radius: 50%;
             opacity: 0.8;
             filter: blur(0.5px);
-            animation-duration: 10s, 3s;
-            animation-iteration-count: infinite, infinite;
-            animation-timing-function: linear, ease-in-out;
         }
 
         .snowflake.small {
             width: 3px;
             height: 3px;
-            animation-duration: 15s, 4s;
         }
 
         .snowflake.medium {
             width: 5px;
             height: 5px;
-            animation-duration: 12s, 3.5s;
         }
 
         .snowflake.large {
             width: 7px;
             height: 7px;
-            animation-duration: 8s, 3s;
         }
 
         /* АНИМАЦИИ СНЕЖИНОК */
@@ -1206,7 +1200,7 @@
     </div>
 
     <script>
-        // УЛУЧШЕННАЯ ВЕРСИЯ С ИСПРАВЛЕННЫМИ БАГАМИ
+        // УЛУЧШЕННАЯ ВЕРСИЯ С ИСПРАВЛЕННЫМИ БАГАМИ И РЕГУЛЯТОРАМИ ГРОМКОСТИ
         
         const Game = {
             // Конфигурация
@@ -1245,7 +1239,9 @@
                 musicSource: null,
                 snowflakes: [],
                 musicAnalyser: null,
-                musicDataArray: null
+                musicDataArray: null,
+                musicGainNode: null,
+                sfxGainNode: null
             },
             
             // DOM элементы
@@ -1361,6 +1357,18 @@
                     // Создаем AudioContext для звуков
                     this.state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     
+                    // Создаем gain ноды для управления громкостью
+                    this.state.musicGainNode = this.state.audioContext.createGain();
+                    this.state.sfxGainNode = this.state.audioContext.createGain();
+                    
+                    // Подключаем gain ноды к выходу
+                    this.state.musicGainNode.connect(this.state.audioContext.destination);
+                    this.state.sfxGainNode.connect(this.state.audioContext.destination);
+                    
+                    // Устанавливаем начальную громкость
+                    this.state.musicGainNode.gain.value = this.config.musicVolume;
+                    this.state.sfxGainNode.gain.value = this.config.sfxVolume;
+                    
                     // Создаем улучшенные звуковые эффекты
                     this.createEnhancedSounds();
                     
@@ -1426,38 +1434,28 @@
                     
                     // Создаем осцилляторы для разных частот
                     const frequencies = [220, 277.18, 329.63, 440]; // A3, C#4, E4, A4
-                    const gains = [];
                     const oscillators = [];
-                    
-                    // Создаем основной осциллятор для баса
-                    const bassOsc = audioContext.createOscillator();
-                    const bassGain = audioContext.createGain();
-                    bassOsc.connect(bassGain);
-                    bassGain.connect(audioContext.destination);
-                    bassOsc.frequency.value = 110; // A2
-                    bassOsc.type = 'sine';
-                    bassGain.gain.value = 0;
+                    const gains = [];
                     
                     // Создаем пару осцилляторов для мелодии
                     for (let i = 0; i < frequencies.length; i++) {
                         const osc = audioContext.createOscillator();
                         const gain = audioContext.createGain();
                         osc.connect(gain);
-                        gain.connect(audioContext.destination);
+                        gain.connect(this.state.musicGainNode);
                         osc.frequency.value = frequencies[i];
                         osc.type = i % 2 === 0 ? 'sine' : 'triangle';
-                        gain.gain.value = 0;
+                        gain.gain.value = 0; // начальное значение - тишина
                         
                         oscillators.push(osc);
                         gains.push(gain);
                     }
                     
                     // Сохраняем для управления
-                    this.state.musicOscillators = [bassOsc, ...oscillators];
-                    this.state.musicGains = [bassGain, ...gains];
+                    this.state.musicOscillators = oscillators;
+                    this.state.musicGains = gains;
                     
                     // Начинаем осцилляторы (они будут тихими до включения музыки)
-                    bassOsc.start();
                     oscillators.forEach(osc => osc.start());
                     
                     // Создаем функцию для анимации музыки
@@ -1469,16 +1467,10 @@
             },
             
             animateMusic() {
-                if (!this.config.musicEnabled || !this.state.musicGains) return;
+                if (!this.config.musicEnabled || !this.state.musicGains || !this.state.isMusicPlaying) return;
                 
                 const time = this.state.audioContext.currentTime;
-                const bassGain = this.state.musicGains[0];
-                const melodyGains = this.state.musicGains.slice(1);
-                
-                // Ритмичный бас (каждую секунду)
-                bassGain.gain.setValueAtTime(0, time);
-                bassGain.gain.linearRampToValueAtTime(this.config.musicVolume * 0.2, time + 0.05);
-                bassGain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+                const melodyGains = this.state.musicGains;
                 
                 // Случайная мелодия (каждые 2 секунды)
                 setTimeout(() => {
@@ -1488,14 +1480,14 @@
                         
                         const melodyTime = this.state.audioContext.currentTime;
                         melodyGain.gain.setValueAtTime(0, melodyTime);
-                        melodyGain.gain.linearRampToValueAtTime(this.config.musicVolume * 0.1, melodyTime + 0.1);
+                        melodyGain.gain.linearRampToValueAtTime(0.3, melodyTime + 0.1);
                         melodyGain.gain.exponentialRampToValueAtTime(0.001, melodyTime + 0.8);
                     }
                 }, 2000);
                 
                 // Рекурсивный вызов
                 if (this.state.isMusicPlaying) {
-                    setTimeout(() => this.animateMusic(), 1000);
+                    setTimeout(() => this.animateMusic(), 3000);
                 }
             },
             
@@ -1507,7 +1499,7 @@
                     const gainNode = this.state.audioContext.createGain();
                     
                     oscillator.connect(gainNode);
-                    gainNode.connect(this.state.audioContext.destination);
+                    gainNode.connect(this.state.sfxGainNode);
                     
                     // Настройка частоты
                     if (downward) {
@@ -1519,8 +1511,8 @@
                     
                     oscillator.type = type;
                     
-                    // Настройка огибающей с учетом громкости SFX
-                    const volume = this.config.sfxVolume * 0.3;
+                    // Настройка огибающей
+                    const volume = 0.3; // Базовая громкость, будет умножена на sfxGainNode
                     gainNode.gain.setValueAtTime(0.001, this.state.audioContext.currentTime);
                     gainNode.gain.exponentialRampToValueAtTime(volume, this.state.audioContext.currentTime + attack);
                     gainNode.gain.exponentialRampToValueAtTime(0.001, this.state.audioContext.currentTime + attack + decay);
@@ -1543,18 +1535,17 @@
                     
                     osc1.connect(gainNode);
                     osc2.connect(gainNode);
-                    gainNode.connect(this.state.audioContext.destination);
+                    gainNode.connect(this.state.sfxGainNode);
                     
                     osc1.frequency.value = frequency;
                     osc2.frequency.value = frequency * 2.5;
                     osc1.type = 'sine';
                     osc2.type = 'triangle';
                     
-                    const volume = this.config.sfxVolume * 0.25;
                     const now = this.state.audioContext.currentTime;
                     
                     gainNode.gain.setValueAtTime(0.001, now);
-                    gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.25, now + 0.1);
                     gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
                     
                     osc1.start(now);
@@ -1574,17 +1565,16 @@
                     const gainNode = this.state.audioContext.createGain();
                     
                     oscillator.connect(gainNode);
-                    gainNode.connect(this.state.audioContext.destination);
+                    gainNode.connect(this.state.sfxGainNode);
                     
                     oscillator.frequency.setValueAtTime(150, this.state.audioContext.currentTime);
                     oscillator.frequency.exponentialRampToValueAtTime(20, this.state.audioContext.currentTime + 0.8);
                     oscillator.type = 'sawtooth';
                     
-                    const volume = this.config.sfxVolume * 0.4;
                     const now = this.state.audioContext.currentTime;
                     
                     gainNode.gain.setValueAtTime(0.001, now);
-                    gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.4, now + 0.05);
                     gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
                     
                     oscillator.start(now);
@@ -1602,7 +1592,7 @@
                     const gainNode = this.state.audioContext.createGain();
                     
                     oscillator.connect(gainNode);
-                    gainNode.connect(this.state.audioContext.destination);
+                    gainNode.connect(this.state.sfxGainNode);
                     
                     // Добавляем вибрато
                     const vibrato = this.state.audioContext.createOscillator();
@@ -1616,11 +1606,10 @@
                     oscillator.frequency.value = frequency;
                     oscillator.type = 'square';
                     
-                    const volume = this.config.sfxVolume * 0.2;
                     const now = this.state.audioContext.currentTime;
                     
                     gainNode.gain.setValueAtTime(0.001, now);
-                    gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.2, now + 0.1);
                     gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
                     
                     oscillator.start(now);
@@ -1650,17 +1639,14 @@
             
             // Управление музыкой
             playMusic() {
-                if (!this.config.musicEnabled || !this.state.musicGains) return;
+                if (!this.config.musicEnabled) return;
                 
                 this.state.isMusicPlaying = true;
                 
                 // Включаем музыку плавно
                 const now = this.state.audioContext.currentTime;
-                this.state.musicGains.forEach(gain => {
-                    gain.gain.cancelScheduledValues(now);
-                    gain.gain.setValueAtTime(gain.gain.value, now);
-                    gain.gain.linearRampToValueAtTime(this.config.musicVolume * 0.1, now + 1);
-                });
+                this.state.musicGainNode.gain.setValueAtTime(this.state.musicGainNode.gain.value, now);
+                this.state.musicGainNode.gain.linearRampToValueAtTime(this.config.musicVolume, now + 1);
                 
                 // Запускаем анимацию музыки
                 this.animateMusic();
@@ -1670,32 +1656,22 @@
             },
             
             pauseMusic() {
-                if (!this.state.musicGains) return;
-                
                 this.state.isMusicPlaying = false;
                 
                 const now = this.state.audioContext.currentTime;
-                this.state.musicGains.forEach(gain => {
-                    gain.gain.cancelScheduledValues(now);
-                    gain.gain.setValueAtTime(gain.gain.value, now);
-                    gain.gain.linearRampToValueAtTime(0.001, now + 0.5);
-                });
+                this.state.musicGainNode.gain.setValueAtTime(this.state.musicGainNode.gain.value, now);
+                this.state.musicGainNode.gain.linearRampToValueAtTime(0.001, now + 0.5);
                 
                 this.elements.musicStatus.textContent = '🎶 Музыка: На паузе';
                 this.showMessage('⏸ Музыка на паузе');
             },
             
             stopMusic() {
-                if (!this.state.musicGains) return;
-                
                 this.state.isMusicPlaying = false;
                 
                 const now = this.state.audioContext.currentTime;
-                this.state.musicGains.forEach(gain => {
-                    gain.gain.cancelScheduledValues(now);
-                    gain.gain.setValueAtTime(gain.gain.value, now);
-                    gain.gain.linearRampToValueAtTime(0.001, now + 0.3);
-                });
+                this.state.musicGainNode.gain.setValueAtTime(this.state.musicGainNode.gain.value, now);
+                this.state.musicGainNode.gain.linearRampToValueAtTime(0.001, now + 0.3);
                 
                 this.elements.musicStatus.textContent = '🎶 Музыка: Остановлена';
                 this.showMessage('⏹ Музыка остановлена');
@@ -1706,19 +1682,23 @@
                 this.elements.musicVolumeValue.textContent = volume;
                 
                 // Обновляем громкость если музыка играет
-                if (this.state.isMusicPlaying && this.state.musicGains) {
+                if (this.state.musicGainNode) {
                     const now = this.state.audioContext.currentTime;
-                    this.state.musicGains.forEach(gain => {
-                        gain.gain.cancelScheduledValues(now);
-                        gain.gain.setValueAtTime(gain.gain.value, now);
-                        gain.gain.linearRampToValueAtTime(this.config.musicVolume * 0.1, now + 0.5);
-                    });
+                    this.state.musicGainNode.gain.setValueAtTime(this.state.musicGainNode.gain.value, now);
+                    this.state.musicGainNode.gain.linearRampToValueAtTime(this.config.musicVolume, now + 0.1);
                 }
             },
             
             setSfxVolume(volume) {
                 this.config.sfxVolume = volume / 100;
                 this.elements.sfxVolumeValue.textContent = volume;
+                
+                // Обновляем громкость звуковых эффектов
+                if (this.state.sfxGainNode) {
+                    const now = this.state.audioContext.currentTime;
+                    this.state.sfxGainNode.gain.setValueAtTime(this.state.sfxGainNode.gain.value, now);
+                    this.state.sfxGainNode.gain.linearRampToValueAtTime(this.config.sfxVolume, now + 0.1);
+                }
             },
             
             toggleMusic() {
