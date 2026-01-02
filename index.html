@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Clicker</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍪</text></svg>">
+    <style>
+        :root {
+            --cc-brown: #6d4c41;
+            --cc-light-brown: #a1887f;
+            --cc-beige: #f5e9d9;
+            --cc-dark-beige: #d7ccc8;
+            --cc-green: #4caf50;
+            --cc-red: #f44336;
+            --cc-gold: #ffd700;
+            --cc-blue: #2196f3;
+            --cc-yellow: #ffd54f;
+            --cc-dark: #3e2723;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--cc-dark) 0%, var(--cc-brown) 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        /* Навигация */
+        .nav {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid var(--cc-light-brown);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo::before {
+            content: '🍪';
+            font-size: 32px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .nav-btn {
+            background: var(--cc-blue);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn.save {
+            background: var(--cc-green);
+        }
+        
+        .nav-btn.reset {
+            background: var(--cc-red);
+        }
+        
+        /* Статистика */
+        .stats {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid var(--cc-light-brown);
+            backdrop-filter: blur(10px);
+        }
+        
+        .cookie-display {
+            text-align: center;
+        }
+        
+        .cookie-count {
+            font-size: 42px;
+            font-weight: bold;
+            color: var(--cc-yellow);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .cookie-count::before {
+            content: '🍪 ';
+        }
+        
+        .cps-display {
+            font-size: 20px;
+            color: var(--cc-gold);
+        }
+        
+        .cps-display::before {
+            content: '⚡ ';
+        }
+        
+        /* Главная печенька */
+        .game-area {
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+        }
+        
+        .big-cookie {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.1s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .big-cookie:hover {
+            transform: scale(1.05);
+        }
+        
+        .big-cookie:active {
+            transform: scale(0.95);
+        }
+        
+        .cookie-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+        }
+        
+        .cookie-click-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--cc-yellow);
+            font-weight: bold;
+            font-size: 24px;
+            pointer-events: none;
+            opacity: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        /* Генераторы */
+        .generators {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid var(--cc-light-brown);
+            backdrop-filter: blur(10px);
+        }
+        
+        .section-title {
+            color: var(--cc-yellow);
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .section-title::before {
+            content: '🏭';
+        }
+        
+        .generators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .generator {
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .generator:hover {
+            border-color: var(--cc-yellow);
+            transform: translateY(-3px);
+        }
+        
+        .generator.affordable {
+            border-color: var(--cc-green);
+        }
+        
+        .generator-info {
+            flex: 1;
+        }
+        
+        .generator-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .generator-emoji {
+            font-size: 24px;
+        }
+        
+        .generator-stats {
+            font-size: 14px;
+            color: var(--cc-dark-beige);
+            margin-top: 5px;
+        }
+        
+        .generator-cost {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--cc-green);
+            margin-right: 15px;
+        }
+        
+        .generator-cost::before {
+            content: '🍪 ';
+        }
+        
+        .buy-btn {
+            background: var(--cc-green);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .buy-btn:hover:not(:disabled) {
+            background: #388e3c;
+            transform: translateY(-2px);
+        }
+        
+        .buy-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        /* Улучшения */
+        .upgrades {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid var(--cc-light-brown);
+            backdrop-filter: blur(10px);
+        }
+        
+        .upgrades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .upgrade {
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .upgrade.affordable {
+            border-color: var(--cc-gold);
+        }
+        
+        .upgrade.purchased {
+            border-color: var(--cc-green);
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
+        .upgrade-name {
+            font-weight: bold;
+            color: var(--cc-yellow);
+            margin-bottom: 5px;
+        }
+        
+        .upgrade-description {
+            font-size: 14px;
+            color: var(--cc-dark-beige);
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-cost {
+            color: var(--cc-gold);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Футер */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--cc-light-brown);
+            font-size: 14px;
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Анимации */
+        @keyframes clickEffect {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -100%) scale(1.5);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+        
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: var(--cc-brown);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            border: 3px solid var(--cc-yellow);
+        }
+        
+        .modal-title {
+            color: var(--cc-yellow);
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .big-cookie {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .cookie-count {
+                font-size: 32px;
+            }
+            
+            .generators-grid,
+            .upgrades-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* Прогресс бар */
+        .progress-bar {
+            height: 5px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cc-green), var(--cc-yellow));
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <div class="nav">
+        <div class="logo">Cookie Clicker</div>
+        <div class="nav-buttons">
+            <button class="nav-btn save" onclick="saveGame()">💾 Сохранить</button>
+            <button class="nav-btn" onclick="loadGame()">📂 Загрузить</button>
+            <button class="nav-btn reset" onclick="showResetModal()">🔄 Сбросить</button>
+        </div>
+    </div>
+    
+    <!-- Статистика -->
+    <div class="stats">
+        <div class="cookie-display">
+            <div class="cookie-count" id="cookieCount">0</div>
+            <div class="cps-display" id="cpsDisplay">0 в секунду</div>
+        </div>
+        <div class="other-stats">
+            <div>Всего кликов: <span id="totalClicks">0</span></div>
+            <div>Всего печенек: <span id="totalCookies">0</span></div>
+            <div>Версия: 1.0.0</div>
+        </div>
+    </div>
+    
+    <!-- Главная печенька -->
+    <div class="game-area">
+        <div class="big-cookie" id="bigCookie" onclick="clickCookie()">
+            <svg class="cookie-svg" viewBox="0 0 100 100">
+                <!-- Печенька -->
+                <circle cx="50" cy="50" r="45" fill="#d2691e" stroke="#8b4513" stroke-width="2"/>
+                <!-- Шоколадные кусочки -->
+                <circle cx="35" cy="40" r="5" fill="#5d4037"/>
+                <circle cx="65" cy="40" r="5" fill="#5d4037"/>
+                <circle cx="45" cy="60" r="5" fill="#5d4037"/>
+                <circle cx="65" cy="65" r="5" fill="#5d4037"/>
+                <circle cx="35" cy="65" r="5" fill="#5d4037"/>
+                <circle cx="50" cy="45" r="5" fill="#5d4037"/>
+                <!-- Глаза -->
+                <circle cx="40" cy="35" r="3" fill="white"/>
+                <circle cx="60" cy="35" r="3" fill="white"/>
+                <circle cx="40" cy="35" r="1" fill="black"/>
+                <circle cx="60" cy="35" r="1" fill="black"/>
+                <!-- Улыбка -->
+                <path d="M 40 50 Q 50 60 60 50" stroke="black" stroke-width="1.5" fill="none"/>
+            </svg>
+            <div class="cookie-click-effect" id="clickEffect">+1</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="autoProgress"></div>
+        </div>
+    </div>
+    
+    <!-- Генераторы -->
+    <div class="generators">
+        <h2 class="section-title">Генераторы</h2>
+        <div class="generators-grid" id="generatorsList">
+            <!-- Генераторы будут добавляться через JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Улучшения -->
+    <div class="upgrades">
+        <h2 class="section-title">Улучшения</h2>
+        <div class="upgrades-grid" id="upgradesList">
+            <!-- Улучшения будут добавляться через JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Модальное окно сброса -->
+    <div class="modal" id="resetModal">
+        <div class="modal-content">
+            <h2 class="modal-title">⚠️ Сброс игры</h2>
+            <p>Вы уверены, что хотите сбросить всю игру? Это действие нельзя отменить!</p>
+            <p>Вы потеряете все печеньки, генераторы и улучшения.</p>
+            <div class="modal-buttons">
+                <button class="nav-btn reset" onclick="resetGame()">Да, сбросить</button>
+                <button class="nav-btn" onclick="hideResetModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Футер -->
+    <div class="footer">
+        <p>Cookie Clicker Clone | Сделано с ❤️ и 🍪</p>
+        <p>Игра автоматически сохраняется каждые 30 секунд</p>
+    </div>
+    
+    <script>
+        // ========== КОНФИГУРАЦИЯ ИГРЫ ==========
+        const GAME_CONFIG = {
+            version: '1.0.0',
+            autoSaveInterval: 30000,
+            updateInterval: 1000,
+            generators: [
+                {
+                    id: 'cursor',
+                    name: 'Курсор',
+                    emoji: '👆',
+                    baseCost: 15,
+                    baseCps: 0.1,
+                    description: 'Автоматически кликает по печеньке'
+                },
+                {
+                    id: 'grandma',
+                    name: 'Бабушка',
+                    emoji: '👵',
+                    baseCost: 100,
+                    baseCps: 1,
+                    description: 'Печет печеньки в свободное время'
+                },
+                {
+                    id: 'farm',
+                    name: 'Ферма',
+                    emoji: '🚜',
+                    baseCost: 1100,
+                    baseCps: 8,
+                    description: 'Выращивает пшеницу для печенья'
+                },
+                {
+                    id: 'mine',
+                    name: 'Шахта',
+                    emoji: '⛏️',
+                    baseCost: 12000,
+                    baseCps: 47,
+                    description: 'Добывает сахар и шоколад'
+                },
+                {
+                    id: 'factory',
+                    name: 'Фабрика',
+                    emoji: '🏭',
+                    baseCost: 130000,
+                    baseCps: 260,
+                    description: 'Массовое производство печенья'
+                },
+                {
+                    id: 'bank',
+                    name: 'Банк',
+                    emoji: '🏦',
+                    baseCost: 1400000,
+                    baseCps: 1400,
+                    description: 'Инвестирует в печенье'
+                },
+                {
+                    id: 'temple',
+                    name: 'Храм',
+                    emoji: '🛕',
+                    baseCost: 20000000,
+                    baseCps: 7800,
+                    description: 'Молится за больше печенек'
+                },
+                {
+                    id: 'wizard',
+                    name: 'Волшебник',
+                    emoji: '🧙',
+                    baseCost: 330000000,
+                    baseCps: 44000,
+                    description: 'Колдует новые печеньки'
+                }
+            ],
+            upgrades: [
+                {
+                    id: 1,
+                    name: 'Усиленный палец',
+                    description: 'Курсоры в 2 раза эффективнее',
+                    cost: 100,
+                    type: 'multiplier',
+                    target: 'cursor',
+                    value: 2,
+                    requires: { cursors: 1 }
+                },
+                {
+                    id: 2,
+                    name: 'Более крепкое тесто',
+                    description: 'Бабушки пекут в 2 раза быстрее',
+                    cost: 500,
+                    type: 'multiplier',
+                    target: 'grandma',
+                    value: 2,
+                    requires: { grandmas: 5 }
+                },
+                {
+                    id: 3,
+                    name: 'Шоколадные чипсы',
+                    description: 'Клик дает в 2 раза больше печенек',
+                    cost: 1000,
+                    type: 'clickMultiplier',
+                    value: 2
+                },
+                {
+                    id: 4,
+                    name: 'Золотые печеньки',
+                    description: 'Все генераторы работают на 10% быстрее',
+                    cost: 5000,
+                    type: 'globalMultiplier',
+                    value: 1.1
+                },
+                {
+                    id: 5,
+                    name: 'Небесные чипсы',
+                    description: '+1% к CPS за каждую 1000 печенек',
+                    cost: 10000,
+                    type: 'prestigeMultiplier',
+                    value: 0.01
+                }
+            ]
+        };
+        
+        // ========== СОСТОЯНИЕ ИГРЫ ==========
+        let gameState = {
+            cookies: 0,
+            totalCookies: 0,
+            totalClicks: 0,
+            clickMultiplier: 1,
+            cpsMultiplier: 1,
+            prestigeMultiplier: 1,
+            generators: {},
+            purchasedUpgrades: [],
+            lastSave: Date.now()
+        };
+        
+        // Инициализация генераторов
+        GAME_CONFIG.generators.forEach(gen => {
+            gameState.generators[gen.id] = 0;
+        });
+        
+        // ========== DOM ЭЛЕМЕНТЫ ==========
+        const elements = {
+            cookieCount: document.getElementById('cookieCount'),
+            cpsDisplay: document.getElementById('cpsDisplay'),
+            totalClicks: document.getElementById('totalClicks'),
+            totalCookies: document.getElementById('totalCookies'),
+            bigCookie: document.getElementById('bigCookie'),
+            clickEffect: document.getElementById('clickEffect'),
+            generatorsList: document.getElementById('generatorsList'),
+            upgradesList: document.getElementById('upgradesList'),
+            resetModal: document.getElementById('resetModal'),
+            autoProgress: document.getElementById('autoProgress')
+        };
+        
+        // ========== ИГРОВАЯ ЛОГИКА ==========
+        
+        // Расчет стоимости генератора
+        function calculateGeneratorCost(generatorId, owned) {
+            const generator = GAME_CONFIG.generators.find(g => g.id === generatorId);
+            return Math.floor(generator.baseCost * Math.pow(1.15, owned));
+        }
+        
+        // Расчет CPS
+        function calculateCPS() {
+            let totalCPS = 0;
+            
+            GAME_CONFIG.generators.forEach(generator => {
+                const count = gameState.generators[generator.id];
+                if (count > 0) {
+                    let multiplier = 1;
+                    
+                    // Применяем улучшения для этого типа генератора
+                    gameState.purchasedUpgrades.forEach(upgradeId => {
+                        const upgrade = GAME_CONFIG.upgrades.find(u => u.id === upgradeId);
+                        if (upgrade && upgrade.type === 'multiplier' && upgrade.target === generator.id) {
+                            multiplier *= upgrade.value;
+                        }
+                    });
+                    
+                    // Глобальные улучшения
+                    if (gameState.purchasedUpgrades.includes(4)) { // Золотые печеньки
+                        multiplier *= 1.1;
+                    }
+                    
+                    // Престиж множитель
+                    multiplier *= gameState.prestigeMultiplier;
+                    
+                    totalCPS += count * generator.baseCps * multiplier;
+                }
+            });
+            
+            return totalCPS * gameState.cpsMultiplier;
+        }
+        
+        // Расчет значения клика
+        function calculateClickValue() {
+            let value = 1 * gameState.clickMultiplier;
+            
+            // Улучшение "Шоколадные чипсы"
+            if (gameState.purchasedUpgrades.includes(3)) {
+                value *= 2;
+            }
+            
+            // Престиж множитель
+            value *= gameState.prestigeMultiplier;
+            
+            return value;
+        }
+        
+        // ========== ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ==========
+        
+        // Обновление счетчиков
+        function updateUI() {
+            // Обновляем счетчики печенек
+            elements.cookieCount.textContent = formatNumber(gameState.cookies);
+            elements.cpsDisplay.textContent = `${formatNumber(calculateCPS())} в секунду`;
+            elements.totalClicks.textContent = gameState.totalClicks;
+            elements.totalCookies.textContent = formatNumber(gameState.totalCookies);
+            
+            // Обновляем прогресс бар
+            const progress = (Date.now() % 1000) / 1000 * 100;
+            elements.autoProgress.style.width = `${progress}%`;
+            
+            // Обновляем список генераторов
+            updateGeneratorsList();
+            
+            // Обновляем список улучшений
+            updateUpgradesList();
+        }
+        
+        // Форматирование чисел
+        function formatNumber(num) {
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toFixed(1);
+        }
+        
+        // Обновление списка генераторов
+        function updateGeneratorsList() {
+            elements.generatorsList.innerHTML = '';
+            
+            GAME_CONFIG.generators.forEach(generator => {
+                const owned = gameState.generators[generator.id];
+                const cost = calculateGeneratorCost(generator.id, owned);
+                const canAfford = gameState.cookies >= cost;
+                const cps = generator.baseCps * owned;
+                
+                const generatorElement = document.createElement('div');
+                generatorElement.className = `generator ${canAfford ? 'affordable' : ''}`;
+                generatorElement.innerHTML = `
+                    <div class="generator-info">
+                        <div class="generator-name">
+                            <span class="generator-emoji">${generator.emoji}</span>
+                            ${generator.name} (${owned})
+                        </div>
+                        <div class="generator-stats">
+                            ${generator.description}<br>
+                            Каждый: ${generator.baseCps} CPS | Всего: ${formatNumber(cps)} CPS
+                        </div>
+                    </div>
+                    <div class="generator-cost">${formatNumber(cost)}</div>
+                    <button class="buy-btn" onclick="buyGenerator('${generator.id}')" 
+                            ${!canAfford ? 'disabled' : ''}>
+                        Купить
+                    </button>
+                `;
+                
+                elements.generatorsList.appendChild(generatorElement);
+            });
+        }
+        
+        // Обновление списка улучшений
+        function updateUpgradesList() {
+            elements.upgradesList.innerHTML = '';
+            
+            GAME_CONFIG.upgrades.forEach(upgrade => {
+                const isPurchased = gameState.purchasedUpgrades.includes(upgrade.id);
+                const canAfford = gameState.cookies >= upgrade.cost;
+                const requirementsMet = checkUpgradeRequirements(upgrade);
+                
+                const upgradeElement = document.createElement('div');
+                upgradeElement.className = `upgrade ${isPurchased ? 'purchased' : canAfford && requirementsMet ? 'affordable' : ''}`;
+                
+                let buttonHTML = '';
+                if (!isPurchased && canAfford && requirementsMet) {
+                    buttonHTML = `<button class="buy-btn" onclick="buyUpgrade(${upgrade.id})">Купить</button>`;
+                }
+                
+                upgradeElement.innerHTML = `
+                    <div class="upgrade-name">${upgrade.name}</div>
+                    <div class="upgrade-description">${upgrade.description}</div>
+                    <div class="upgrade-cost">🍪 ${formatNumber(upgrade.cost)}</div>
+                    ${buttonHTML}
+                `;
+                
+                elements.upgradesList.appendChild(upgradeElement);
+            });
+        }
+        
+        // Проверка требований для улучшения
+        function checkUpgradeRequirements(upgrade) {
+            if (!upgrade.requires) return true;
+            
+            for (const [generatorId, minCount] of Object.entries(upgrade.requires)) {
+                if (gameState.generators[generatorId] < minCount) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        // ========== ДЕЙСТВИЯ ИГРОКА ==========
+        
+        // Клик по печеньке
+        function clickCookie(event) {
+            const clickValue = calculateClickValue();
+            
+            // Добавляем печеньки
+            gameState.cookies += clickValue;
+            gameState.totalCookies += clickValue;
+            gameState.totalClicks++;
+            
+            // Визуальный эффект
+            showClickEffect(clickValue, event);
+            
+            // Звуковой эффект
+            playClickSound();
+            
+            // Обновляем интерфейс
+            updateUI();
+            
+            // Автосохранение каждые 10 кликов
+            if (gameState.totalClicks % 10 === 0) {
+                saveGame();
+            }
+        }
+        
+        // Покупка генератора
+        function buyGenerator(generatorId) {
+            const owned = gameState.generators[generatorId];
+            const cost = calculateGeneratorCost(generatorId, owned);
+            
+            if (gameState.cookies >= cost) {
+                gameState.cookies -= cost;
+                gameState.generators[generatorId] = owned + 1;
+                
+                // Звуковой эффект
+                playBuySound();
+                
+                // Обновляем интерфейс
+                updateUI();
+                saveGame();
+                
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // Покупка улучшения
+        function buyUpgrade(upgradeId) {
+            const upgrade = GAME_CONFIG.upgrades.find(u => u.id === upgradeId);
+            
+            if (!upgrade || gameState.purchasedUpgrades.includes(upgradeId)) {
+                return false;
+            }
+            
+            if (gameState.cookies >= upgrade.cost && checkUpgradeRequirements(upgrade)) {
+                gameState.cookies -= upgrade.cost;
+                gameState.purchasedUpgrades.push(upgradeId);
+                
+                // Применяем эффект улучшения
+                applyUpgradeEffect(upgrade);
+                
+                // Звуковой эффект
+                playUpgradeSound();
+                
+                // Обновляем интерфейс
+                updateUI();
+                saveGame();
+                
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // Применение эффекта улучшения
+        function applyUpgradeEffect(upgrade) {
+            switch (upgrade.type) {
+                case 'multiplier':
+                    // Уже учтено в calculateCPS
+                    break;
+                case 'clickMultiplier':
+                    gameState.clickMultiplier *= upgrade.value;
+                    break;
+                case 'globalMultiplier':
+                    gameState.cpsMultiplier *= upgrade.value;
+                    break;
+                case 'prestigeMultiplier':
+                    gameState.prestigeMultiplier += upgrade.value;
+                    break;
+            }
+        }
+        
+        // ========== ВИЗУАЛЬНЫЕ ЭФФЕКТЫ ==========
+        
+        // Эффект клика
+        function showClickEffect(value, event) {
+            const effect = elements.clickEffect.cloneNode(true);
+            effect.textContent = `+${formatNumber(value)}`;
+            effect.style.opacity = '1';
+            
+            if (event) {
+                const rect = elements.bigCookie.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                effect.style.left = `${x}px`;
+                effect.style.top = `${y}px`;
+            } else {
+                effect.style.left = '50%';
+                effect.style.top = '50%';
+            }
+            
+            elements.bigCookie.appendChild(effect);
+            
+            // Анимация
+            effect.style.animation = 'clickEffect 1s forwards';
+            
+            // Удаляем после анимации
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
+                }
+            }, 1000);
+        }
+        
+        // ========== ЗВУКОВЫЕ ЭФФЕКТЫ ==========
+        
+        function playClickSound() {
+            // Простой звук клика через Web Audio API
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        function playBuySound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 1200;
+                oscillator.type = 'triangle';
+                
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        function playUpgradeSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(2000, audioContext.currentTime + 0.5);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        // ========== СОХРАНЕНИЕ И ЗАГРУЗКА ==========
+        
+        // Сохранение игры
+        function saveGame() {
+            try {
+                gameState.lastSave = Date.now();
+                const saveData = {
+                    ...gameState,
+                    version: GAME_CONFIG.version,
+                    saveTime: new Date().toISOString()
+                };
+                localStorage.setItem('cookieClickerSave', JSON.stringify(saveData));
+                console.log('Игра сохранена');
+                
+                // Показываем уведомление
+                showNotification('Игра сохранена!');
+                
+                return true;
+            } catch (e) {
+                console.error('Ошибка сохранения:', e);
+                return false;
+            }
+        }
+        
+        // Загрузка игры
+        function loadGame() {
+            try {
+                const saveData = localStorage.getItem('cookieClickerSave');
+                if (saveData) {
+                    const parsed = JSON.parse(saveData);
+                    
+                    // Проверяем версию
+                    if (parsed.version === GAME_CONFIG.version) {
+                        gameState = parsed;
+                        console.log('Игра загружена');
+                        
+                        // Показываем уведомление
+                        showNotification('Игра загружена!');
+                        
+                        updateUI();
+                        return true;
+                    } else {
+                        console.log('Версия сохранения не совпадает');
+                        showNotification('Версия сохранения не совпадает, создано новое сохранение');
+                    }
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки:', e);
+            }
+            
+            return false;
+        }
+        
+        // Автосохранение
+        function setupAutoSave() {
+            setInterval(() => {
+                if (gameState.cookies > 0 || gameState.totalClicks > 0) {
+                    saveGame();
+                }
+            }, GAME_CONFIG.autoSaveInterval);
+        }
+        
+        // ========== ИГРОВОЙ ЦИКЛ ==========
+        
+        // Автоматический доход
+        function setupGameLoop() {
+            setInterval(() => {
+                const cps = calculateCPS();
+                if (cps > 0) {
+                    gameState.cookies += cps / 10; // 10 раз в секунду для плавности
+                    gameState.totalCookies += cps / 10;
+                    updateUI();
+                }
+            }, 100);
+            
+            // Быстрый интервал для плавного обновления
+            setInterval(updateUI, 50);
+        }
+        
+        // ========== МОДАЛЬНЫЕ ОКНА ==========
+        
+        function showResetModal() {
+            elements.resetModal.style.display = 'flex';
+        }
+        
+        function hideResetModal() {
+            elements.resetModal.style.display = 'none';
+        }
+        
+        function resetGame() {
+            // Сбрасываем состояние игры
+            gameState = {
+                cookies: 0,
+                totalCookies: 0,
+                totalClicks: 0,
+                clickMultiplier: 1,
+                cpsMultiplier: 1,
+                prestigeMultiplier: 1,
+                generators: {},
+                purchasedUpgrades: [],
+                lastSave: Date.now()
+            };
+            
+            // Инициализация генераторов
+            GAME_CONFIG.generators.forEach(gen => {
+                gameState.generators[gen.id] = 0;
+            });
+            
+            // Очищаем сохранение
+            localStorage.removeItem('cookieClickerSave');
+            
+            // Обновляем интерфейс
+            updateUI();
+            hideResetModal();
+            
+            // Показываем уведомление
+            showNotification('Игра сброшена!');
+        }
+        
+        // ========== УВЕДОМЛЕНИЯ ==========
+        
+        function showNotification(message) {
+            // Создаем элемент уведомления
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4caf50;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 5px;
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+            
+            // Добавляем стили анимации
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Удаляем через 3 секунды
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        
+        function initGame() {
+            // Загружаем сохранение
+            loadGame();
+            
+            // Настраиваем игровой цикл
+            setupGameLoop();
+            
+            // Настраиваем автосохранение
+            setupAutoSave();
+            
+            // Обновляем интерфейс
+            updateUI();
+            
+            // Добавляем обработчики событий
+            elements.bigCookie.addEventListener('click', clickCookie);
+            
+            // Для мобильных устройств: обработка касаний
+            elements.bigCookie.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                clickCookie(e.touches[0]);
+            });
+            
+            // Добавляем контекстное меню для сохранения
+            elements.bigCookie.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                saveGame();
+                return false;
+            });
+            
+            // Сохраняем при закрытии вкладки
+            window.addEventListener('beforeunload', () => {
+                saveGame();
+            });
+            
+            // Показываем приветствие
+            setTimeout(() => {
+                showNotification('Добро пожаловать в Cookie Clicker! Кликайте по печеньке 🍪');
+            }, 1000);
+        }
+        
+        // ========== ЧИТЫ ==========
+        // (Только для разработки - удалите в продакшене)
+        
+        function addCheatCookies(amount) {
+            gameState.cookies += amount;
+            gameState.totalCookies += amount;
+            updateUI();
+            showNotification(`Добавлено ${formatNumber(amount)} печенек!`);
+        }
+        
+        // Горячие клавиши для разработки
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey) {
+                switch(e.key) {
+                    case 'C':
+                        addCheatCookies(1000);
+                        break;
+                    case 'R':
+                        resetGame();
+                        break;
+                    case 'S':
+                        saveGame();
+                        break;
+                    case 'L':
+                        loadGame();
+                        break;
+                }
+            }
+        });
+        
+        // ========== ЗАПУСК ИГРЫ ==========
+        
+        // Запускаем игру при загрузке страницы
+        window.addEventListener('DOMContentLoaded', initGame);
+        
+        // Экспортируем функции в глобальную область видимости
+        window.clickCookie = clickCookie;
+        window.buyGenerator = buyGenerator;
+        window.buyUpgrade = buyUpgrade;
+        window.saveGame = saveGame;
+        window.loadGame = loadGame;
+        window.showResetModal = showResetModal;
+        window.hideResetModal = hideResetModal;
+        window.resetGame = resetGame;
+        
+        // Для отладки
+        console.log('Cookie Clicker загружен!');
+        console.log('Горячие клавиши разработчика: Ctrl+Shift+C - добавить печеньки, Ctrl+Shift+S - сохранить, Ctrl+Shift+L - загрузить');
+    </script>
+</body>
+</html>
